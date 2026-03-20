@@ -78,9 +78,9 @@ async function handleEvent(event: webhook.Event) {
   const flexMessage = buildFlexMessage(inventData);
 
   await lineClient.replyMessage({
-    replyToken: event.replyToken,
-    messages: [flexMessage]
-  });
+  replyToken: event.replyToken!,
+  messages: [flexMessage]
+});
 }
 
 export async function POST(req: NextRequest) {
