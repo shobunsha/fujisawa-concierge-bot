@@ -36,11 +36,22 @@ async function generateInventIdea(userTrouble: string): Promise<InventJson> {
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     temperature: 0.9,
+    max_tokens: 200, // ★ 追加（コスト制御）
     response_format: { type: "json_object" },
     messages: [
       {
         role: "system",
-        content: SYSTEM_PROMPT
+        content: `
+${SYSTEM_PROMPT}
+
+あなたは「藤沢の観光コンシェルジュAI」です。
+地元（藤沢・湘南・江の島・辻堂）に詳しく、
+親しみやすくフレンドリーに回答してください。
+
+回答はLINE向けに短く、わかりやすくしてください。
+回答は3〜5行で簡潔にまとめてください。
+少しだけユーモアを入れてOKです。
+`
       },
       {
         role: "user",
@@ -78,9 +89,9 @@ async function handleEvent(event: webhook.Event) {
   const flexMessage = buildFlexMessage(inventData);
 
   await lineClient.replyMessage({
-  replyToken: event.replyToken!,
-  messages: [flexMessage]
-});
+    replyToken: event.replyToken!,
+    messages: [flexMessage]
+  });
 }
 
 export async function POST(req: NextRequest) {
