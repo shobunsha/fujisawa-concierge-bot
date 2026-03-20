@@ -18,9 +18,11 @@ function safeJsonParse(text: string): InventJson | null {
     const parsed = JSON.parse(cleaned);
 
     if (
-      typeof parsed?.item_name === "string" &&
-      typeof parsed?.tech_background === "string" &&
-      typeof parsed?.materials === "string" &&
+      typeof parsed?.spot_name === "string" &&
+      typeof parsed?.spot_area === "string" &&
+      typeof parsed?.story_title === "string" &&
+      typeof parsed?.story_text === "string" &&
+      typeof parsed?.recommend_point === "string" &&
       typeof parsed?.concierge_message === "string"
     ) {
       return parsed as InventJson;
@@ -32,11 +34,54 @@ function safeJsonParse(text: string): InventJson | null {
   }
 }
 
-async function generateInventIdea(userTrouble: string): Promise<InventJson> {
+function isNgInput(userText: string) {
+  const text = userText.trim();
+
+  if (!text) return true;
+
+  // 1文字は基本NG
+  if (text.length <= 1) return true;
+
+  // 記号だけ
+  if (/^[\s!-/:-@[-`{-~！-／：-＠［-｀｛-～]+$/.test(text)) return true;
+
+  // 同じ文字の繰り返し（ああ、aaa、111など）
+  if (/^(.)\1+$/.test(text)) return true;
+
+  // 2文字以下の曖昧入力
+  const shortAmbiguousList = [
+    "あ",
+    "い",
+    "う",
+    "え",
+    "お",
+    "ai",
+    "aa",
+    "a",
+    "1",
+    "2",
+    "3",
+    "うー",
+    "あー",
+    "へ",
+    "ほ",
+    "ん",
+    "？",
+    "?",
+    "。",
+    "、、",
+    "…"
+  ];
+  if (text.length <= 2 && shortAmbiguousList.includes(text.toLowerCase())) return true;
+
+  return false;
+}
+
+async function generateTourStory(userRequest: string): Promise<InventJson> {
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
-    temperature: 0.9,
-    max_tokens: 200, // ★ 追加（コスト制御）
+    temperature: 0.8,
+    max_tokens: 200,
     response_format: { type: "json_object" },
     messages: [
       {
@@ -45,17 +90,34 @@ async function generateInventIdea(userTrouble: string): Promise<InventJson> {
 ${SYSTEM_PROMPT}
 
 あなたは「藤沢の観光コンシェルジュAI」です。
-地元（藤沢・湘南・江の島・辻堂）に詳しく、
-親しみやすくフレンドリーに回答してください。
+地元（藤沢・江の島・辻堂・湘南）に詳しく、
+親しみやすくフレンドリーに案内してください。
 
+ユーザーの希望や気分に合わせて、
+藤沢・江の島・辻堂・湘南エリアの実在する観光地やスポットを入れた
+短いストーリー形式で紹介してください。
+
+必ず日本語で回答してください。
+空想の発明や架空設定は作らないでください。
+実在する地名・観光地名を使ってください。
 回答はLINE向けに短く、わかりやすくしてください。
-回答は3〜5行で簡潔にまとめてください。
+回答は3〜5行程度の読みやすい内容にしてください。
 少しだけユーモアを入れてOKです。
+
+以下のJSON形式で必ず返してください。
+{
+  "spot_name": "紹介の中心となる観光地名",
+  "spot_area": "エリア名",
+  "story_title": "短いタイトル",
+  "story_text": "情景が浮かぶ短いストーリー文",
+  "recommend_point": "おすすめ理由を一言で",
+  "concierge_message": "親しみやすい締めのひとこと"
+}
 `
       },
       {
         role: "user",
-        content: `ユーザーの悩み: ${userTrouble}`
+        content: `ユーザーの希望・相談: ${userRequest}`
       }
     ]
   });
@@ -65,17 +127,32 @@ ${SYSTEM_PROMPT}
 
   if (!parsed) {
     return {
-      item_name: "江の島式・ひらめき追い風ブースター",
-      tech_background:
-        "江の島の潮風と、いすゞ自動車や日本精工(NSK)のものづくり精神を掛け合わせ、悩みで止まりがちな気持ちを前へ進める架空技術として設計した発明品です。",
-      materials:
-        "片瀬の砂、江ノ電をイメージした回転パーツ、遊行寺の歴史に着想を得た落ち着きの繊維",
+      spot_name: "江の島",
+      spot_area: "片瀬海岸",
+      story_title: "はじめての藤沢なら、まずはここ",
+      story_text:
+        "片瀬江ノ島駅から海風を感じながら江の島へ。参道で食べ歩きを楽しみ、のんびり景色を眺めるだけでも湘南気分がぐっと高まります。迷ったときに外しにくい王道コースです。",
+      recommend_point:
+        "海・散策・食べ歩きのバランスがよく、初めてでも楽しみやすいです。",
       concierge_message:
-        "悩みがあるのは前に進もうとしている証拠ですな。藤沢の風に乗って、次の一歩を軽やかに踏み出すのですよ！"
+        "迷ったら江の島からで大丈夫ですぞ。藤沢らしさを気持ちよく味わえます。"
     };
   }
 
   return parsed;
+}
+
+async function replyNgInput(replyToken: string) {
+  await lineClient.replyMessage({
+    replyToken,
+    messages: [
+      {
+        type: "text",
+        text:
+          "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
+      }
+    ]
+  });
 }
 
 async function handleEvent(event: webhook.Event) {
@@ -85,13 +162,18 @@ async function handleEvent(event: webhook.Event) {
   const userText = event.message.text.trim();
   if (!userText) return;
 
-  const inventData = await generateInventIdea(userText);
-  const flexMessage = buildFlexMessage(inventData);
+  if (isNgInput(userText)) {
+    await replyNgInput(event.replyToken!);
+    return;
+  }
 
-  await lineClient.replyMessage({
-    replyToken: event.replyToken!,
-    messages: [flexMessage]
-  });
+  const tourData = await generateTourStory(userText);
+  const flexMessage = buildFlexMessage(tourData);
+
+await lineClient.replyMessage({
+  replyToken: event.replyToken!,
+  messages: [flexMessage as any]
+});
 }
 
 export async function POST(req: NextRequest) {

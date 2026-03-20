@@ -1,140 +1,135 @@
-import { messagingApi } from "@line/bot-sdk";
+import type { FlexMessage } from "@line/bot-sdk";
 
 export type InventJson = {
-  item_name: string;
-  tech_background: string;
-  materials: string;
+  spot_name: string;
+  spot_area: string;
+  story_title: string;
+  story_text: string;
+  recommend_point: string;
   concierge_message: string;
 };
 
-export function buildFlexMessage(data: InventJson): messagingApi.FlexMessage {
+export function buildFlexMessage(data: InventJson): FlexMessage {
   return {
     type: "flex",
-    altText: `藤沢コンシェルジュ特選：${data.item_name}`,
+    altText: `${data.spot_name}｜${data.story_title}`,
     contents: {
       type: "bubble",
       size: "mega",
-      header: {
-        type: "box",
-        layout: "vertical",
-        backgroundColor: "#0E7490",
-        paddingAll: "16px",
-        contents: [
-          {
-            type: "text",
-            text: "藤沢コンシェルジュ特選",
-            color: "#FFFFFF",
-            weight: "bold",
-            size: "sm"
-          },
-          {
-            type: "text",
-            text: "発明証明書",
-            color: "#FFFFFF",
-            weight: "bold",
-            size: "xl",
-            margin: "sm"
-          }
-        ]
-      },
       body: {
         type: "box",
         layout: "vertical",
-        spacing: "lg",
-        paddingAll: "18px",
+        spacing: "md",
         contents: [
           {
             type: "text",
-            text: data.item_name,
-            weight: "bold",
+            text: "藤沢コンシェルジュAI",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: data.story_title,
             size: "xl",
+            weight: "bold",
             wrap: true,
             color: "#111827"
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: "スポット",
+                size: "sm",
+                color: "#6B7280",
+                flex: 2
+              },
+              {
+                type: "text",
+                text: data.spot_name,
+                size: "sm",
+                color: "#111827",
+                wrap: true,
+                flex: 5,
+                weight: "bold"
+              }
+            ]
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: "エリア",
+                size: "sm",
+                color: "#6B7280",
+                flex: 2
+              },
+              {
+                type: "text",
+                text: data.spot_area,
+                size: "sm",
+                color: "#111827",
+                wrap: true,
+                flex: 5
+              }
+            ]
           },
           {
             type: "separator",
             margin: "md"
           },
           {
-            type: "box",
-            layout: "vertical",
-            spacing: "md",
-            contents: [
-              {
-                type: "text",
-                text: "【技術背景】",
-                weight: "bold",
-                size: "sm",
-                color: "#0F766E"
-              },
-              {
-                type: "text",
-                text: `・${data.tech_background}`,
-                wrap: true,
-                size: "sm",
-                color: "#374151"
-              },
-              {
-                type: "text",
-                text: "【使用素材】",
-                weight: "bold",
-                size: "sm",
-                color: "#0F766E",
-                margin: "md"
-              },
-              {
-                type: "text",
-                text: `・${data.materials}`,
-                wrap: true,
-                size: "sm",
-                color: "#374151"
-              }
-            ]
-          }
-        ]
-      },
-      footer: {
-        type: "box",
-        layout: "vertical",
-        backgroundColor: "#F0FDFA",
-        paddingAll: "16px",
-        contents: [
+            type: "text",
+            text: "ストーリー",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold",
+            margin: "md"
+          },
           {
-            type: "box",
-            layout: "horizontal",
-            spacing: "md",
-            contents: [
-              {
-                type: "text",
-                text: "👨‍🔬",
-                size: "xxl",
-                flex: 0
-              },
-              {
-                type: "box",
-                layout: "vertical",
-                contents: [
-                  {
-                    type: "text",
-                    text: "コンシェルジュより",
-                    weight: "bold",
-                    size: "sm",
-                    color: "#115E59"
-                  },
-                  {
-                    type: "text",
-                    text: data.concierge_message,
-                    wrap: true,
-                    size: "sm",
-                    color: "#374151",
-                    margin: "sm"
-                  }
-                ]
-              }
-            ]
+            type: "text",
+            text: data.story_text,
+            size: "md",
+            color: "#111827",
+            wrap: true
+          },
+          {
+            type: "text",
+            text: "おすすめポイント",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: data.recommend_point,
+            size: "sm",
+            color: "#111827",
+            wrap: true
+          },
+          {
+            type: "separator",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: data.concierge_message,
+            size: "sm",
+            color: "#374151",
+            wrap: true,
+            margin: "md"
           }
-        ]
+        ],
+        paddingAll: "20px"
       }
-    }
+    } as const
   };
 }
