@@ -241,6 +241,124 @@ async function handleEvent(event: webhook.Event) {
   const userText = event.message.text.trim();
   if (!userText) return;
 
+  // ① 1問目スタート
+  if (userText === "はじめる" || userText === "探す") {
+    await lineClient.replyMessage({
+      replyToken: event.replyToken!,
+      messages: [
+        {
+          type: "text",
+          text: "何をしたいですか？",
+          quickReply: {
+            items: [
+              {
+                type: "action",
+                action: { type: "message", label: "🍽 ランチ", text: "ランチ" }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "☕ カフェ", text: "カフェ" }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "🎡 観光", text: "観光" }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "🛍 買い物", text: "買い物" }
+              }
+            ]
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  // ② 2問目
+  if (["ランチ", "カフェ", "観光", "買い物"].includes(userText)) {
+    await lineClient.replyMessage({
+      replyToken: event.replyToken!,
+      messages: [
+        {
+          type: "text",
+          text: "誰と行きますか？",
+          quickReply: {
+            items: [
+              {
+                type: "action",
+                action: { type: "message", label: "👤 ひとり", text: `${userText}|ひとり` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "💑 デート", text: `${userText}|デート` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "👨‍👩‍👧 子連れ", text: `${userText}|子連れ` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "👥 友人", text: `${userText}|友人` }
+              }
+            ]
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  // ③ 3問目
+  if (userText.includes("|") && userText.split("|").length === 2) {
+    await lineClient.replyMessage({
+      replyToken: event.replyToken!,
+      messages: [
+        {
+          type: "text",
+          text: "どんな過ごし方？",
+          quickReply: {
+            items: [
+              {
+                type: "action",
+                action: { type: "message", label: "✨ おしゃれ", text: `${userText}|おしゃれ` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "😌 ゆったり", text: `${userText}|ゆったり` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "💪 がっつり", text: `${userText}|がっつり` }
+              },
+              {
+                type: "action",
+                action: { type: "message", label: "☔ 雨の日OK", text: `${userText}|雨の日` }
+              }
+            ]
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  // ④ 3つ揃ったら検索
+  if (userText.split("|").length === 3) {
+    const query = userText.replaceAll("|", " ");
+
+    const candidates = pickRecommendedSpots(query, 3);
+    const tourData = await generateTourStory(query, candidates);
+    const flexMessage = buildFlexMessage(tourData);
+
+    await lineClient.replyMessage({
+      replyToken: event.replyToken!,
+      messages: [flexMessage as any]
+    });
+    return;
+  }
+
+  // ⑤ 従来の自由入力も残す
   if (isNgInput(userText)) {
     await replyNgInput(event.replyToken!);
     return;
