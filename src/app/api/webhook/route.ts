@@ -17,6 +17,7 @@ type GourmetSpot = {
 };
 
 function detectLanguage(text: string): "ja" | "en" {
+  if (text.startsWith("en|")) return "en";
   return /[a-zA-Z]/.test(text) ? "en" : "ja";
 }
 
@@ -93,22 +94,22 @@ function buildStartMessageEn() {
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🍽 Lunch", text: "ランチ" }
+            action: { type: "message", label: "🍽 Lunch", text: "en|ランチ" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "☕ Cafe", text: "カフェ" }
+            action: { type: "message", label: "☕ Cafe", text: "en|カフェ" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🎡 Sightseeing", text: "観光" }
+            action: { type: "message", label: "🎡 Sightseeing", text: "en|観光" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🛍 Shopping", text: "買い物" }
+            action: { type: "message", label: "🛍 Shopping", text: "en|買い物" }
           }
         ]
       }
@@ -595,8 +596,11 @@ async function handleEvent(event: webhook.Event) {
   if (!userText) return;
 
   const lang = detectLanguage(userText);
+  const normalizedText = userText.startsWith("en|")
+    ? userText.replace(/^en\|/, "")
+    : userText;
 
-  if (userText === "探す" || userText.toLowerCase() === "search") {
+  if (userText === "探す" || userText.toLowerCase() === "search" || userText === "en|search") {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
@@ -608,7 +612,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  if (["ランチ", "カフェ", "観光", "買い物"].includes(userText)) {
+  if (["ランチ", "カフェ", "観光", "買い物"].includes(normalizedText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
@@ -620,7 +624,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  if (userText.includes("|") && userText.split("|").length === 2) {
+  if (normalizedText.includes("|") && normalizedText.split("|").length === 2) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
@@ -632,8 +636,12 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  if (userText.split("|").length === 3) {
-    const query = userText.replaceAll("|", " ");
+  if (normalizedText.split("|").length === 3) {
+    const cleanedText = userText.startsWith("en|")
+      ? userText.replace(/^en\|/, "")
+      : userText;
+
+    const query = cleanedText.replaceAll("|", " ");
 
     const candidates = pickRecommendedSpots(query, 3);
     const tourData = await generateTourStory(query, candidates);
