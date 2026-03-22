@@ -5,7 +5,12 @@ import { validateSignature, webhook } from "@line/bot-sdk";
 import { lineClient } from "@/lib/line";
 import { openai } from "@/lib/openai";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
-import { buildFlexMessage, buildFlexMessageEn, InventJson } from "@/lib/flex";
+import {
+  buildFlexMessage,
+  buildFlexMessageEn,
+  buildFlexMessageZh,
+  InventJson
+} from "@/lib/flex";
 import gourmetData from "@/data/fujisawa-gourmet.json";
 
 type GourmetSpot = {
@@ -16,9 +21,12 @@ type GourmetSpot = {
   tags: string[];
 };
 
-function detectLanguage(text: string): "ja" | "en" {
+function detectLanguage(text: string): "ja" | "en" | "zh" {
   if (text.startsWith("en|")) return "en";
-  return /[a-zA-Z]/.test(text) ? "en" : "ja";
+  if (text.startsWith("zh|")) return "zh";
+  if (/[\u4e00-\u9fff]/.test(text)) return "zh";
+  if (/[a-zA-Z]/.test(text)) return "en";
+  return "ja";
 }
 
 function buildStartMessage() {
@@ -110,6 +118,54 @@ function buildStartMessageEn() {
             type: "button",
             style: "primary",
             action: { type: "message", label: "🛍 Shopping", text: "en|買い物" }
+          }
+        ]
+      }
+    }
+  };
+}
+
+function buildStartMessageZh() {
+  return {
+    type: "flex",
+    altText: "藤泽导览AI",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "藤泽导览AI",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "您想做什么？",
+            size: "md"
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🍽 午餐", text: "zh|ランチ" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "☕ 咖啡", text: "zh|カフェ" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🎡 观光", text: "zh|観光" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🛍 购物", text: "zh|買い物" }
           }
         ]
       }
@@ -217,6 +273,56 @@ function buildCompanionMessageEn(baseText: string) {
   };
 }
 
+function buildCompanionMessageZh(baseText: string) {
+  return {
+    type: "flex",
+    altText: "和谁一起去？",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "和谁一起去？",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "请选择同行对象",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👤 一个人", text: `${baseText}|ひとり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💑 约会", text: `${baseText}|デート` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👨‍👩‍👧 亲子", text: `${baseText}|子連れ` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "👥 朋友", text: `${baseText}|友人` }
+          }
+        ]
+      }
+    }
+  };
+}
+
 function buildMoodMessage(baseText: string) {
   return {
     type: "flex",
@@ -317,6 +423,56 @@ function buildMoodMessageEn(baseText: string) {
   };
 }
 
+function buildMoodMessageZh(baseText: string) {
+  return {
+    type: "flex",
+    altText: "想怎么度过？",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "想怎么度过？",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "请选择最接近您心情的选项",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "✨ 时尚", text: `${baseText}|おしゃれ` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "😌 悠闲", text: `${baseText}|ゆったり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💪 丰盛", text: `${baseText}|がっつり` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "☔ 雨天也可以", text: `${baseText}|雨の日` }
+          }
+        ]
+      }
+    }
+  };
+}
+
 function safeJsonParse(text: string): InventJson | null {
   try {
     const cleaned = text
@@ -385,65 +541,84 @@ function extractKeywords(userText: string) {
 
   if (text.includes("ランチ")) keywords.push("ランチ");
   if (text.includes("lunch")) keywords.push("ランチ");
+  if (text.includes("午餐")) keywords.push("ランチ");
 
   if (text.includes("カフェ")) keywords.push("カフェ");
   if (text.includes("cafe")) keywords.push("カフェ");
   if (text.includes("coffee")) keywords.push("カフェ");
+  if (text.includes("咖啡")) keywords.push("カフェ");
 
   if (text.includes("観光")) keywords.push("観光");
   if (text.includes("sightseeing")) keywords.push("観光");
   if (text.includes("tour")) keywords.push("観光");
+  if (text.includes("观光")) keywords.push("観光");
+  if (text.includes("旅游")) keywords.push("観光");
 
   if (text.includes("デート")) keywords.push("デート");
   if (text.includes("date")) keywords.push("デート");
+  if (text.includes("约会")) keywords.push("デート");
 
   if (text.includes("子連れ")) keywords.push("子連れ");
   if (text.includes("family")) keywords.push("子連れ");
   if (text.includes("kids")) keywords.push("子連れ");
   if (text.includes("child")) keywords.push("子連れ");
+  if (text.includes("亲子")) keywords.push("子連れ");
+  if (text.includes("孩子")) keywords.push("子連れ");
+  if (text.includes("家庭")) keywords.push("子連れ");
 
   if (text.includes("雨")) keywords.push("雨の日");
   if (text.includes("rain")) keywords.push("雨の日");
+  if (text.includes("雨天")) keywords.push("雨の日");
 
   if (text.includes("買い物")) keywords.push("買い物");
   if (text.includes("shopping")) keywords.push("買い物");
+  if (text.includes("购物")) keywords.push("買い物");
 
   if (text.includes("公園")) keywords.push("公園");
   if (text.includes("park")) keywords.push("公園");
+  if (text.includes("公园")) keywords.push("公園");
 
   if (text.includes("散歩")) keywords.push("散歩");
   if (text.includes("walk")) keywords.push("散歩");
+  if (text.includes("散步")) keywords.push("散歩");
 
   if (text.includes("歴史")) keywords.push("歴史");
   if (text.includes("history")) keywords.push("歴史");
+  if (text.includes("历史")) keywords.push("歴史");
 
   if (text.includes("のんびり")) keywords.push("のんびり");
   if (text.includes("relax")) keywords.push("のんびり");
+  if (text.includes("悠闲")) keywords.push("のんびり");
 
   if (text.includes("駅近")) keywords.push("駅近");
   if (text.includes("near station")) keywords.push("駅近");
 
   if (text.includes("藤沢")) keywords.push("藤沢");
   if (text.includes("fujisawa")) keywords.push("藤沢");
+  if (text.includes("藤泽")) keywords.push("藤沢");
 
   if (text.includes("辻堂")) keywords.push("辻堂");
   if (text.includes("tsujido")) keywords.push("辻堂");
 
   if (text.includes("江の島")) keywords.push("江の島");
   if (text.includes("enoshima")) keywords.push("江の島");
+  if (text.includes("江之岛")) keywords.push("江の島");
 
   if (text.includes("湘南")) keywords.push("湘南");
   if (text.includes("shonan")) keywords.push("湘南");
 
   if (text.includes("おしゃれ")) keywords.push("おしゃれ");
   if (text.includes("stylish")) keywords.push("おしゃれ");
+  if (text.includes("时尚")) keywords.push("おしゃれ");
 
   if (text.includes("ゆったり")) keywords.push("ゆったり");
   if (text.includes("relaxing")) keywords.push("ゆったり");
+  if (text.includes("悠闲")) keywords.push("ゆったり");
 
   if (text.includes("がっつり")) keywords.push("がっつり");
   if (text.includes("hearty")) keywords.push("がっつり");
   if (text.includes("big meal")) keywords.push("がっつり");
+  if (text.includes("丰盛")) keywords.push("がっつり");
 
   return keywords;
 }
@@ -462,16 +637,16 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
 
   const text = userText.toLowerCase();
 
-  if ((text.includes("ランチ") || text.includes("lunch")) && spot.tags.includes("ランチ")) score += 4;
-  if ((text.includes("デート") || text.includes("date")) && spot.tags.includes("デート")) score += 4;
-  if ((text.includes("子連れ") || text.includes("family") || text.includes("kids")) && spot.tags.includes("子連れ")) score += 4;
-  if ((text.includes("雨") || text.includes("rain")) && spot.tags.includes("雨の日")) score += 4;
-  if ((text.includes("カフェ") || text.includes("cafe") || text.includes("coffee")) && spot.category === "カフェ") score += 4;
-  if ((text.includes("観光") || text.includes("sightseeing") || text.includes("tour")) && spot.category === "観光") score += 4;
-  if ((text.includes("買い物") || text.includes("shopping")) && spot.category === "買い物") score += 4;
-  if ((text.includes("おしゃれ") || text.includes("stylish")) && spot.tags.includes("おしゃれ")) score += 4;
-  if ((text.includes("ゆったり") || text.includes("relaxing")) && spot.tags.includes("ゆったり")) score += 4;
-  if ((text.includes("がっつり") || text.includes("hearty")) && spot.tags.includes("がっつり")) score += 4;
+  if ((text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) && spot.tags.includes("ランチ")) score += 4;
+  if ((text.includes("デート") || text.includes("date") || text.includes("约会")) && spot.tags.includes("デート")) score += 4;
+  if ((text.includes("子連れ") || text.includes("family") || text.includes("kids") || text.includes("亲子") || text.includes("家庭")) && spot.tags.includes("子連れ")) score += 4;
+  if ((text.includes("雨") || text.includes("rain") || text.includes("雨天")) && spot.tags.includes("雨の日")) score += 4;
+  if ((text.includes("カフェ") || text.includes("cafe") || text.includes("coffee") || text.includes("咖啡")) && spot.category === "カフェ") score += 4;
+  if ((text.includes("観光") || text.includes("sightseeing") || text.includes("tour") || text.includes("观光") || text.includes("旅游")) && spot.category === "観光") score += 4;
+  if ((text.includes("買い物") || text.includes("shopping") || text.includes("购物")) && spot.category === "買い物") score += 4;
+  if ((text.includes("おしゃれ") || text.includes("stylish") || text.includes("时尚")) && spot.tags.includes("おしゃれ")) score += 4;
+  if ((text.includes("ゆったり") || text.includes("relaxing") || text.includes("悠闲")) && spot.tags.includes("ゆったり")) score += 4;
+  if ((text.includes("がっつり") || text.includes("hearty") || text.includes("丰盛")) && spot.tags.includes("がっつり")) score += 4;
 
   return score;
 }
@@ -498,7 +673,7 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
 async function generateTourStory(
   userRequest: string,
   candidates: GourmetSpot[],
-  lang: "ja" | "en" = "ja"
+  lang: "ja" | "en" | "zh" = "ja"
 ): Promise<InventJson> {
   const candidateText =
     lang === "en"
@@ -506,6 +681,13 @@ async function generateTourStory(
           .map(
             (spot, index) =>
               `${index + 1}. ${spot.name} (${spot.area} / ${spot.category})\nDescription: ${spot.desc}\nTags: ${spot.tags.join(", ")}`
+          )
+          .join("\n\n")
+      : lang === "zh"
+      ? candidates
+          .map(
+            (spot, index) =>
+              `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n说明: ${spot.desc}\n标签: ${spot.tags.join("、")}`
           )
           .join("\n\n")
       : candidates
@@ -539,6 +721,31 @@ Return ONLY this JSON:
   "story_text": "short story-like recommendation in English",
   "recommend_point": "short reason in English",
   "concierge_message": "friendly closing line in English"
+}
+`
+      : lang === "zh"
+      ? `
+${SYSTEM_PROMPT}
+
+你是“藤泽观光导览AI”。
+你非常熟悉藤泽、江之岛、辻堂和湘南地区。
+请用自然、亲切、简洁的中文进行介绍。
+
+请从下面候选地点中选出最适合用户的一个真实地点。
+不要编造店名或景点。
+不要使用虚构设定。
+请全部使用中文回答。
+所有 JSON 字段内容都必须是中文。
+内容请简短，适合 LINE 阅读。
+
+只返回以下 JSON：
+{
+  "spot_name": "主要地点名称",
+  "spot_area": "地区名称",
+  "story_title": "简短标题",
+  "story_text": "简短且有画面感的中文介绍",
+  "recommend_point": "简短推荐理由",
+  "concierge_message": "亲切的结尾一句话"
 }
 `
       : `
@@ -575,6 +782,11 @@ ${SYSTEM_PROMPT}
       ? `User request: ${userRequest}
 
 Candidate spots:
+${candidateText}`
+      : lang === "zh"
+      ? `用户需求: ${userRequest}
+
+候选地点:
 ${candidateText}`
       : `ユーザーの希望・相談: ${userRequest}
 
@@ -615,6 +827,17 @@ ${candidateText}`;
       };
     }
 
+    if (lang === "zh") {
+      return {
+        spot_name: first.name,
+        spot_area: first.area,
+        story_title: `${first.name}：藤泽不错的一站`,
+        story_text: `${first.name}位于${first.area}，很适合在藤泽散步途中顺路前往。${first.desc}`,
+        recommend_point: `这是一个轻松又方便的选择。`,
+        concierge_message: `如果拿不准，选这里通常不会出错。`
+      };
+    }
+
     return {
       spot_name: first.name,
       spot_area: first.area,
@@ -628,7 +851,10 @@ ${candidateText}`;
   return parsed;
 }
 
-async function replyNgInput(replyToken: string, lang: "ja" | "en" = "ja") {
+async function replyNgInput(
+  replyToken: string,
+  lang: "ja" | "en" | "zh" = "ja"
+) {
   await lineClient.replyMessage({
     replyToken,
     messages: [
@@ -637,6 +863,8 @@ async function replyNgInput(replyToken: string, lang: "ja" | "en" = "ja") {
         text:
           lang === "en"
             ? "Please tell me a little more 😊\n\nHere are some examples:\n・Lunch in Fujisawa\n・Places to enjoy on a rainy day\n・Family-friendly spots\n・Places for a date"
+            : lang === "zh"
+            ? "请再具体一点告诉我 😊\n\n例如：\n・藤泽午餐\n・雨天也能去的地方\n・适合亲子的景点\n・适合约会的地方"
             : "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
       }
     ]
@@ -653,14 +881,24 @@ async function handleEvent(event: webhook.Event) {
   const lang = detectLanguage(userText);
   const normalizedText = userText.startsWith("en|")
     ? userText.replace(/^en\|/, "")
+    : userText.startsWith("zh|")
+    ? userText.replace(/^zh\|/, "")
     : userText;
 
-  if (userText === "探す" || userText.toLowerCase() === "search" || userText === "en|search") {
+  if (
+    userText === "探す" ||
+    userText.toLowerCase() === "search" ||
+    userText === "en|search" ||
+    userText === "zh|search" ||
+    userText === "搜索"
+  ) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
         lang === "en"
           ? (buildStartMessageEn() as any)
+          : lang === "zh"
+          ? (buildStartMessageZh() as any)
           : (buildStartMessage() as any)
       ]
     });
@@ -673,6 +911,8 @@ async function handleEvent(event: webhook.Event) {
       messages: [
         lang === "en"
           ? (buildCompanionMessageEn(userText) as any)
+          : lang === "zh"
+          ? (buildCompanionMessageZh(userText) as any)
           : (buildCompanionMessage(userText) as any)
       ]
     });
@@ -685,6 +925,8 @@ async function handleEvent(event: webhook.Event) {
       messages: [
         lang === "en"
           ? (buildMoodMessageEn(userText) as any)
+          : lang === "zh"
+          ? (buildMoodMessageZh(userText) as any)
           : (buildMoodMessage(userText) as any)
       ]
     });
@@ -694,16 +936,20 @@ async function handleEvent(event: webhook.Event) {
   if (normalizedText.split("|").length === 3) {
     const cleanedText = userText.startsWith("en|")
       ? userText.replace(/^en\|/, "")
+      : userText.startsWith("zh|")
+      ? userText.replace(/^zh\|/, "")
       : userText;
 
     const query = cleanedText.replaceAll("|", " ");
 
     const candidates = pickRecommendedSpots(query, 3);
     const tourData = await generateTourStory(query, candidates, lang);
-const flexMessage =
-  lang === "en"
-    ? buildFlexMessageEn(tourData)
-    : buildFlexMessage(tourData);
+    const flexMessage =
+      lang === "en"
+        ? buildFlexMessageEn(tourData)
+        : lang === "zh"
+        ? buildFlexMessageZh(tourData)
+        : buildFlexMessage(tourData);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
@@ -719,10 +965,12 @@ const flexMessage =
 
   const candidates = pickRecommendedSpots(userText, 3);
   const tourData = await generateTourStory(userText, candidates, lang);
-const flexMessage =
-  lang === "en"
-    ? buildFlexMessageEn(tourData)
-    : buildFlexMessage(tourData);
+  const flexMessage =
+    lang === "en"
+      ? buildFlexMessageEn(tourData)
+      : lang === "zh"
+      ? buildFlexMessageZh(tourData)
+      : buildFlexMessage(tourData);
 
   await lineClient.replyMessage({
     replyToken: event.replyToken!,
