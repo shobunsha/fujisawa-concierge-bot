@@ -24,8 +24,16 @@ type GourmetSpot = {
 function detectLanguage(text: string): "ja" | "en" | "zh" {
   if (text.startsWith("en|")) return "en";
   if (text.startsWith("zh|")) return "zh";
-  if (/[\u4e00-\u9fff]/.test(text)) return "zh";
+
+  // ひらがな・カタカナがあれば日本語
+  if (/[ぁ-んァ-ヶー]/.test(text)) return "ja";
+
+  // 英字があれば英語
   if (/[a-zA-Z]/.test(text)) return "en";
+
+  // 漢字のみなら中国語として扱う
+  if (/[\u4e00-\u9fff]/.test(text)) return "zh";
+
   return "ja";
 }
 
