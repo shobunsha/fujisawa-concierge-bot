@@ -5,7 +5,7 @@ import { validateSignature, webhook } from "@line/bot-sdk";
 import { lineClient } from "@/lib/line";
 import { openai } from "@/lib/openai";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
-import { buildFlexMessage, InventJson } from "@/lib/flex";
+import { buildFlexMessage, buildFlexMessageEn, InventJson } from "@/lib/flex";
 import gourmetData from "@/data/fujisawa-gourmet.json";
 
 type GourmetSpot = {
@@ -497,7 +497,8 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
 
 async function generateTourStory(
   userRequest: string,
-  candidates: GourmetSpot[]
+  candidates: GourmetSpot[],
+  lang: "ja" | "en" = "ja"
 ): Promise<InventJson> {
   const candidateText = candidates
     .map(
@@ -559,6 +560,17 @@ ${candidateText}`
 
   if (!parsed) {
     const first = candidates[0];
+
+    if (lang === "en") {
+      return {
+        spot_name: first.name,
+        spot_area: first.area,
+        story_title: `A nice stop in Fujisawa: ${first.name}`,
+        story_text: `${first.name} in ${first.area} is ${first.desc} It is easy to stop by and fits nicely into a walk around Fujisawa.`,
+        recommend_point: `A good option if you want something easy and enjoyable for ${first.category}.`,
+        concierge_message: `When in doubt, this is a safe and pleasant choice.`
+      };
+    }
 
     return {
       spot_name: first.name,
@@ -644,8 +656,11 @@ async function handleEvent(event: webhook.Event) {
     const query = cleanedText.replaceAll("|", " ");
 
     const candidates = pickRecommendedSpots(query, 3);
-    const tourData = await generateTourStory(query, candidates);
-    const flexMessage = buildFlexMessage(tourData);
+    const tourData = await generateTourStory(query, candidates, lang);
+    const flexMessage =
+      lang === "en"
+        ? buildFlexMessageEn(tourData)
+        : buildFlexMessage(tourData);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
@@ -660,8 +675,11 @@ async function handleEvent(event: webhook.Event) {
   }
 
   const candidates = pickRecommendedSpots(userText, 3);
-  const tourData = await generateTourStory(userText, candidates);
-  const flexMessage = buildFlexMessage(tourData);
+  const tourData = await generateTourStory(userText, candidates, lang);
+  const flexMessage =
+    lang === "en"
+      ? buildFlexMessageEn(tourData)
+      : buildFlexMessage(tourData);
 
   await lineClient.replyMessage({
     replyToken: event.replyToken!,

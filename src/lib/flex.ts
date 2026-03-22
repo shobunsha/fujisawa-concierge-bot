@@ -133,3 +133,128 @@ export function buildFlexMessage(data: InventJson): FlexMessage {
     } as const
   };
 }
+
+export function buildFlexMessageEn(data: InventJson): FlexMessage {
+  return {
+    type: "flex",
+    altText: `${data.spot_name} | ${data.story_title}`,
+    contents: {
+      type: "bubble",
+      size: "mega",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "md",
+        contents: [
+          {
+            type: "text",
+            text: "Fujisawa Concierge AI",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: data.story_title,
+            size: "xl",
+            weight: "bold",
+            wrap: true,
+            color: "#111827"
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: "Spot",
+                size: "sm",
+                color: "#6B7280",
+                flex: 2
+              },
+              {
+                type: "text",
+                text: data.spot_name,
+                size: "sm",
+                color: "#111827",
+                wrap: true,
+                flex: 5,
+                weight: "bold"
+              }
+            ]
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            spacing: "sm",
+            contents: [
+              {
+                type: "text",
+                text: "Area",
+                size: "sm",
+                color: "#6B7280",
+                flex: 2
+              },
+              {
+                type: "text",
+                text: data.spot_area,
+                size: "sm",
+                color: "#111827",
+                wrap: true,
+                flex: 5
+              }
+            ]
+          },
+          {
+            type: "separator",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: "Story",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: data.story_text,
+            size: "md",
+            color: "#111827",
+            wrap: true
+          },
+          {
+            type: "text",
+            text: "Why this place",
+            size: "sm",
+            color: "#1D4ED8",
+            weight: "bold",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: data.recommend_point,
+            size: "sm",
+            color: "#111827",
+            wrap: true
+          },
+          {
+            type: "separator",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: data.concierge_message,
+            size: "sm",
+            color: "#374151",
+            wrap: true,
+            margin: "md"
+          }
+        ],
+        paddingAll: "20px"
+      }
+    } as const
+  };
+}
