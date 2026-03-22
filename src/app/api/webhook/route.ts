@@ -16,7 +16,6 @@ type GourmetSpot = {
   tags: string[];
 };
 
-// ★追加：スタート用Flex
 function buildStartMessage() {
   return {
     type: "flex",
@@ -41,19 +40,123 @@ function buildStartMessage() {
           },
           {
             type: "button",
+            style: "primary",
             action: { type: "message", label: "🍽 ランチ", text: "ランチ" }
           },
           {
             type: "button",
+            style: "primary",
             action: { type: "message", label: "☕ カフェ", text: "カフェ" }
           },
           {
             type: "button",
+            style: "primary",
             action: { type: "message", label: "🎡 観光", text: "観光" }
           },
           {
             type: "button",
+            style: "primary",
             action: { type: "message", label: "🛍 買い物", text: "買い物" }
+          }
+        ]
+      }
+    }
+  };
+}
+
+function buildCompanionMessage(baseText: string) {
+  return {
+    type: "flex",
+    altText: "誰と行きますか？",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "誰と行きますか？",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "いっしょに行く相手を選んでください",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👤 ひとり", text: `${baseText}|ひとり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💑 デート", text: `${baseText}|デート` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👨‍👩‍👧 子連れ", text: `${baseText}|子連れ` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "👥 友人", text: `${baseText}|友人` }
+          }
+        ]
+      }
+    }
+  };
+}
+
+function buildMoodMessage(baseText: string) {
+  return {
+    type: "flex",
+    altText: "どんな過ごし方？",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "どんな過ごし方？",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "気分に近いものを選んでください",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "✨ おしゃれ", text: `${baseText}|おしゃれ` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "😌 ゆったり", text: `${baseText}|ゆったり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💪 がっつり", text: `${baseText}|がっつり` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "☔ 雨の日OK", text: `${baseText}|雨の日` }
           }
         ]
       }
@@ -97,7 +200,22 @@ function isNgInput(userText: string) {
   if (/^(.)\1+$/.test(text)) return true;
 
   const shortAmbiguousList = [
-    "あ","い","う","え","お","a","aa","ai","1","2","3","ん","?","？","。","…"
+    "あ",
+    "い",
+    "う",
+    "え",
+    "お",
+    "a",
+    "aa",
+    "ai",
+    "1",
+    "2",
+    "3",
+    "ん",
+    "?",
+    "？",
+    "。",
+    "…"
   ];
 
   if (text.length <= 2 && shortAmbiguousList.includes(text.toLowerCase())) {
@@ -109,6 +227,7 @@ function isNgInput(userText: string) {
 
 function extractKeywords(userText: string) {
   const text = userText.toLowerCase();
+
   const keywords: string[] = [];
 
   if (text.includes("ランチ")) keywords.push("ランチ");
@@ -174,11 +293,16 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
   return spots.slice(0, limit);
 }
 
-async function generateTourStory(userRequest: string, candidates: GourmetSpot[]): Promise<InventJson> {
-  const candidateText = candidates.map(
-    (spot, index) =>
-      `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
-  ).join("\n\n");
+async function generateTourStory(
+  userRequest: string,
+  candidates: GourmetSpot[]
+): Promise<InventJson> {
+  const candidateText = candidates
+    .map(
+      (spot, index) =>
+        `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
+    )
+    .join("\n\n");
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -186,8 +310,43 @@ async function generateTourStory(userRequest: string, candidates: GourmetSpot[])
     max_tokens: 200,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: `ユーザーの希望: ${userRequest}\n\n${candidateText}` }
+      {
+        role: "system",
+        content: `
+${SYSTEM_PROMPT}
+
+あなたは「藤沢の観光コンシェルジュAI」です。
+地元（藤沢・江の島・辻堂・湘南）に詳しく、
+親しみやすくフレンドリーに案内してください。
+
+以下の候補スポットの中から、ユーザーの希望に最も合うものを1つ選び、
+短いストーリー形式で紹介してください。
+
+必ず候補の中にある実在スポット名だけを使ってください。
+候補にない店名や観光地名は作らないでください。
+空想の発明や架空設定は作らないでください。
+回答はLINE向けに短く、わかりやすくしてください。
+回答は3〜5行程度の読みやすい内容にしてください。
+少しだけユーモアを入れてOKです。
+
+以下のJSON形式で必ず返してください。
+{
+  "spot_name": "紹介の中心となるスポット名",
+  "spot_area": "エリア名",
+  "story_title": "短いタイトル",
+  "story_text": "情景が浮かぶ短いストーリー文",
+  "recommend_point": "おすすめ理由を一言で",
+  "concierge_message": "親しみやすい締めのひとこと"
+}
+`
+      },
+      {
+        role: "user",
+        content: `ユーザーの希望・相談: ${userRequest}
+
+候補スポット:
+${candidateText}`
+      }
     ]
   });
 
@@ -196,13 +355,14 @@ async function generateTourStory(userRequest: string, candidates: GourmetSpot[])
 
   if (!parsed) {
     const first = candidates[0];
+
     return {
       spot_name: first.name,
       spot_area: first.area,
-      story_title: `${first.name}のおすすめ`,
-      story_text: first.desc,
-      recommend_point: "気軽に行けるスポットです",
-      concierge_message: "迷ったらここでOKです！"
+      story_title: `${first.name}で藤沢らしさをひと休み`,
+      story_text: `${first.area}にある${first.name}は、${first.desc}。気負わず立ち寄りやすく、藤沢散策の途中にも組み込みやすいスポットです。`,
+      recommend_point: `${first.category}目的でも立ち寄りやすく、会話のきっかけも作りやすいです。`,
+      concierge_message: `迷ったらまずここで大丈夫ですぞ。いい流れを作りやすい一手です。`
     };
   }
 
@@ -212,7 +372,13 @@ async function generateTourStory(userRequest: string, candidates: GourmetSpot[])
 async function replyNgInput(replyToken: string) {
   await lineClient.replyMessage({
     replyToken,
-    messages: [{ type: "text", text: "もう少し具体的に教えてください😊" }]
+    messages: [
+      {
+        type: "text",
+        text:
+          "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
+      }
+    ]
   });
 }
 
@@ -223,7 +389,7 @@ async function handleEvent(event: webhook.Event) {
   const userText = event.message.text.trim();
   if (!userText) return;
 
-  // ★リッチメニュー「探す」
+  // ① リッチメニュー「探す」→ 1問目Flex
   if (userText === "探す") {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
@@ -232,47 +398,28 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  // ★2問目
+  // ② 1問目の回答 → 2問目Flex
   if (["ランチ", "カフェ", "観光", "買い物"].includes(userText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [{
-        type: "text",
-        text: "誰と行きますか？",
-        quickReply: {
-          items: [
-            { type: "action", action: { type: "message", label: "ひとり", text: `${userText}|ひとり` } },
-            { type: "action", action: { type: "message", label: "デート", text: `${userText}|デート` } },
-            { type: "action", action: { type: "message", label: "子連れ", text: `${userText}|子連れ` } }
-          ]
-        }
-      }]
+      messages: [buildCompanionMessage(userText) as any]
     });
     return;
   }
 
-  // ★3問目
+  // ③ 2問目の回答 → 3問目Flex
   if (userText.includes("|") && userText.split("|").length === 2) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [{
-        type: "text",
-        text: "どんな過ごし方？",
-        quickReply: {
-          items: [
-            { type: "action", action: { type: "message", label: "おしゃれ", text: `${userText}|おしゃれ` } },
-            { type: "action", action: { type: "message", label: "ゆったり", text: `${userText}|ゆったり` } },
-            { type: "action", action: { type: "message", label: "がっつり", text: `${userText}|がっつり` } }
-          ]
-        }
-      }]
+      messages: [buildMoodMessage(userText) as any]
     });
     return;
   }
 
-  // ★検索
+  // ④ 3つ揃ったら検索
   if (userText.split("|").length === 3) {
     const query = userText.replaceAll("|", " ");
+
     const candidates = pickRecommendedSpots(query, 3);
     const tourData = await generateTourStory(query, candidates);
     const flexMessage = buildFlexMessage(tourData);
@@ -284,6 +431,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
+  // ⑤ 従来の自由入力も残す
   if (isNgInput(userText)) {
     await replyNgInput(event.replyToken!);
     return;
@@ -301,20 +449,44 @@ async function handleEvent(event: webhook.Event) {
 
 export async function POST(req: NextRequest) {
   try {
-    const channelSecret = process.env.LINE_CHANNEL_SECRET!;
-    const signature = req.headers.get("x-line-signature")!;
+    const channelSecret = process.env.LINE_CHANNEL_SECRET;
+    if (!channelSecret) {
+      return NextResponse.json(
+        { ok: false, error: "LINE_CHANNEL_SECRET が未設定です。" },
+        { status: 500 }
+      );
+    }
+
+    const signature = req.headers.get("x-line-signature");
+    if (!signature) {
+      return NextResponse.json(
+        { ok: false, error: "x-line-signature がありません。" },
+        { status: 400 }
+      );
+    }
+
     const bodyText = await req.text();
 
-    if (!validateSignature(bodyText, channelSecret, signature)) {
-      return NextResponse.json({ ok: false }, { status: 401 });
+    const isValid = validateSignature(bodyText, channelSecret, signature);
+    if (!isValid) {
+      return NextResponse.json(
+        { ok: false, error: "署名検証に失敗しました。" },
+        { status: 401 }
+      );
     }
 
     const body = JSON.parse(bodyText) as webhook.CallbackRequest;
-    await Promise.all(body.events.map(handleEvent));
+    const events = body.events ?? [];
+
+    await Promise.all(events.map(handleEvent));
 
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false }, { status: 500 });
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return NextResponse.json(
+      { ok: false, error: "Webhook処理中にエラーが発生しました。" },
+      { status: 500 }
+    );
   }
 }
 
