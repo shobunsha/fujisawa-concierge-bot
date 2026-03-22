@@ -500,22 +500,48 @@ async function generateTourStory(
   candidates: GourmetSpot[],
   lang: "ja" | "en" = "ja"
 ): Promise<InventJson> {
-  const candidateText = candidates
-    .map(
-      (spot, index) =>
-        `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
-    )
-    .join("\n\n");
+  const candidateText =
+    lang === "en"
+      ? candidates
+          .map(
+            (spot, index) =>
+              `${index + 1}. ${spot.name} (${spot.area} / ${spot.category})\nDescription: ${spot.desc}\nTags: ${spot.tags.join(", ")}`
+          )
+          .join("\n\n")
+      : candidates
+          .map(
+            (spot, index) =>
+              `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
+          )
+          .join("\n\n");
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.8,
-    max_tokens: 200,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: `
+  const systemPrompt =
+    lang === "en"
+      ? `
+${SYSTEM_PROMPT}
+
+You are "Fujisawa Concierge AI".
+You know Fujisawa, Enoshima, Tsujido, and the Shonan area well.
+Be friendly, concise, and natural.
+
+Choose the single best real spot from the candidates below.
+Do not invent place names.
+Do not use fictional settings.
+Write the ENTIRE response in English.
+All fields in the JSON must be written in English.
+Keep it short and easy to read for LINE.
+
+Return ONLY this JSON:
+{
+  "spot_name": "name of the main spot",
+  "spot_area": "area name",
+  "story_title": "short title",
+  "story_text": "short story-like recommendation in English",
+  "recommend_point": "short reason in English",
+  "concierge_message": "friendly closing line in English"
+}
+`
+      : `
 ${SYSTEM_PROMPT}
 
 あなたは「藤沢の観光コンシェルジュAI」です。
@@ -531,8 +557,7 @@ ${SYSTEM_PROMPT}
 回答はLINE向けに短く、わかりやすくしてください。
 回答は3〜5行程度の読みやすい内容にしてください。
 少しだけユーモアを入れてOKです。
-英語での質問には英語で回答してください。
-日本語での質問には日本語で回答してください。
+回答は必ず日本語で書いてください。
 
 以下のJSON形式で必ず返してください。
 {
@@ -543,14 +568,32 @@ ${SYSTEM_PROMPT}
   "recommend_point": "おすすめ理由を一言で",
   "concierge_message": "親しみやすい締めのひとこと"
 }
-`
+`;
+
+  const userPrompt =
+    lang === "en"
+      ? `User request: ${userRequest}
+
+Candidate spots:
+${candidateText}`
+      : `ユーザーの希望・相談: ${userRequest}
+
+候補スポット:
+${candidateText}`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.8,
+    max_tokens: 200,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: systemPrompt
       },
       {
         role: "user",
-        content: `ユーザーの希望・相談: ${userRequest}
-
-候補スポット:
-${candidateText}`
+        content: userPrompt
       }
     ]
   });
@@ -565,10 +608,10 @@ ${candidateText}`
       return {
         spot_name: first.name,
         spot_area: first.area,
-        story_title: `A nice stop in Fujisawa: ${first.name}`,
-        story_text: `${first.name} in ${first.area} is ${first.desc} It is easy to stop by and fits nicely into a walk around Fujisawa.`,
-        recommend_point: `A good option if you want something easy and enjoyable for ${first.category}.`,
-        concierge_message: `When in doubt, this is a safe and pleasant choice.`
+        story_title: `A good stop in Fujisawa: ${first.name}`,
+        story_text: `${first.name} in ${first.area} is an easy place to visit during a walk around Fujisawa. ${first.desc}`,
+        recommend_point: `A convenient and enjoyable option for this kind of outing.`,
+        concierge_message: `If you are not sure, this is a safe and pleasant choice.`
       };
     }
 
@@ -657,10 +700,10 @@ async function handleEvent(event: webhook.Event) {
 
     const candidates = pickRecommendedSpots(query, 3);
     const tourData = await generateTourStory(query, candidates, lang);
-    const flexMessage =
-      lang === "en"
-        ? buildFlexMessageEn(tourData)
-        : buildFlexMessage(tourData);
+const flexMessage =
+  lang === "en"
+    ? buildFlexMessageEn(tourData)
+    : buildFlexMessage(tourData);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
@@ -676,10 +719,10 @@ async function handleEvent(event: webhook.Event) {
 
   const candidates = pickRecommendedSpots(userText, 3);
   const tourData = await generateTourStory(userText, candidates, lang);
-  const flexMessage =
-    lang === "en"
-      ? buildFlexMessageEn(tourData)
-      : buildFlexMessage(tourData);
+const flexMessage =
+  lang === "en"
+    ? buildFlexMessageEn(tourData)
+    : buildFlexMessage(tourData);
 
   await lineClient.replyMessage({
     replyToken: event.replyToken!,
