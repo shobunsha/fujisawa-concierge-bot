@@ -21,6 +21,40 @@ type GourmetSpot = {
   tags: string[];
 };
 
+// ★追加：最近出た店を避けるための簡易メモリ
+const recentSpotsByQuery = new Map<string, string[]>();
+const RANDOM_POOL_SIZE = 5; // 上位何件からランダムに選ぶか
+const RECENT_HISTORY_LIMIT = 6; // 最近出た店の保持数
+
+function rememberRecentSpots(queryKey: string, spots: GourmetSpot[]) {
+  const prev = recentSpotsByQuery.get(queryKey) ?? [];
+  const next = [...spots.map((spot) => spot.name), ...prev];
+
+  const deduped: string[] = [];
+  for (const name of next) {
+    if (!deduped.includes(name)) deduped.push(name);
+  }
+
+  recentSpotsByQuery.set(queryKey, deduped.slice(0, RECENT_HISTORY_LIMIT));
+}
+
+function getRecentSpotNames(queryKey: string): string[] {
+  return recentSpotsByQuery.get(queryKey) ?? [];
+}
+
+function makeQueryKey(userText: string): string {
+  return userText.trim().toLowerCase();
+}
+
+function shuffleArray<T>(items: T[]): T[] {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function detectLanguage(text: string): "ja" | "en" | "zh" {
   if (text.startsWith("en|")) return "en";
   if (text.startsWith("zh|")) return "zh";
@@ -661,6 +695,8 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
 
 function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
   const spots = gourmetData as GourmetSpot[];
+  const queryKey = makeQueryKey(userText);
+  const recentNames = getRecentSpotNames(queryKey);
 
   const scored = spots
     .map((spot) => ({
@@ -669,13 +705,32 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
     }))
     .sort((a, b) => b.score - a.score);
 
-  const positive = scored.filter((item) => item.score > 0).map((item) => item.spot);
+  const positive = scored.filter((item) => item.score > 0);
 
   if (positive.length > 0) {
-    return positive.slice(0, limit);
+    const topPool = positive.slice(0, RANDOM_POOL_SIZE);
+    const nonRecent = topPool.filter((item) => !recentNames.includes(item.spot.name));
+    const sourcePool = nonRecent.length >= limit ? nonRecent : topPool;
+
+    const picked = shuffleArray(sourcePool)
+      .slice(0, limit)
+      .map((item) => item.spot);
+
+    rememberRecentSpots(queryKey, picked);
+    return picked;
   }
 
-  return spots.slice(0, limit);
+  const fallbackPool = shuffleArray(
+    spots.filter((spot) => !recentNames.includes(spot.name))
+  );
+
+  const picked =
+    fallbackPool.length >= limit
+      ? fallbackPool.slice(0, limit)
+      : shuffleArray(spots).slice(0, limit);
+
+  rememberRecentSpots(queryKey, picked);
+  return picked;
 }
 
 async function generateTourStory(
