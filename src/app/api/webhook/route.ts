@@ -16,6 +16,10 @@ type GourmetSpot = {
   tags: string[];
 };
 
+function detectLanguage(text: string): "ja" | "en" {
+  return /[a-zA-Z]/.test(text) ? "en" : "ja";
+}
+
 function buildStartMessage() {
   return {
     type: "flex",
@@ -57,6 +61,54 @@ function buildStartMessage() {
             type: "button",
             style: "primary",
             action: { type: "message", label: "🛍 買い物", text: "買い物" }
+          }
+        ]
+      }
+    }
+  };
+}
+
+function buildStartMessageEn() {
+  return {
+    type: "flex",
+    altText: "Fujisawa Concierge",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "Fujisawa Concierge",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "What would you like to do?",
+            size: "md"
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🍽 Lunch", text: "ランチ" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "☕ Cafe", text: "カフェ" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🎡 Sightseeing", text: "観光" }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "🛍 Shopping", text: "買い物" }
           }
         ]
       }
@@ -114,6 +166,56 @@ function buildCompanionMessage(baseText: string) {
   };
 }
 
+function buildCompanionMessageEn(baseText: string) {
+  return {
+    type: "flex",
+    altText: "Who are you going with?",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "Who are you going with?",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "Please choose who you are going with",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👤 Solo", text: `${baseText}|ひとり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💑 Date", text: `${baseText}|デート` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "👨‍👩‍👧 Family", text: `${baseText}|子連れ` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "👥 Friends", text: `${baseText}|友人` }
+          }
+        ]
+      }
+    }
+  };
+}
+
 function buildMoodMessage(baseText: string) {
   return {
     type: "flex",
@@ -157,6 +259,56 @@ function buildMoodMessage(baseText: string) {
             type: "button",
             style: "secondary",
             action: { type: "message", label: "☔ 雨の日OK", text: `${baseText}|雨の日` }
+          }
+        ]
+      }
+    }
+  };
+}
+
+function buildMoodMessageEn(baseText: string) {
+  return {
+    type: "flex",
+    altText: "What kind of mood?",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "What kind of mood?",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "Choose the option closest to your mood",
+            size: "sm",
+            color: "#666666",
+            wrap: true
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "✨ Stylish", text: `${baseText}|おしゃれ` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "😌 Relaxing", text: `${baseText}|ゆったり` }
+          },
+          {
+            type: "button",
+            style: "primary",
+            action: { type: "message", label: "💪 Hearty", text: `${baseText}|がっつり` }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "☔ Rainy day OK", text: `${baseText}|雨の日` }
           }
         ]
       }
@@ -231,21 +383,66 @@ function extractKeywords(userText: string) {
   const keywords: string[] = [];
 
   if (text.includes("ランチ")) keywords.push("ランチ");
+  if (text.includes("lunch")) keywords.push("ランチ");
+
   if (text.includes("カフェ")) keywords.push("カフェ");
+  if (text.includes("cafe")) keywords.push("カフェ");
+  if (text.includes("coffee")) keywords.push("カフェ");
+
   if (text.includes("観光")) keywords.push("観光");
+  if (text.includes("sightseeing")) keywords.push("観光");
+  if (text.includes("tour")) keywords.push("観光");
+
   if (text.includes("デート")) keywords.push("デート");
+  if (text.includes("date")) keywords.push("デート");
+
   if (text.includes("子連れ")) keywords.push("子連れ");
+  if (text.includes("family")) keywords.push("子連れ");
+  if (text.includes("kids")) keywords.push("子連れ");
+  if (text.includes("child")) keywords.push("子連れ");
+
   if (text.includes("雨")) keywords.push("雨の日");
+  if (text.includes("rain")) keywords.push("雨の日");
+
   if (text.includes("買い物")) keywords.push("買い物");
+  if (text.includes("shopping")) keywords.push("買い物");
+
   if (text.includes("公園")) keywords.push("公園");
+  if (text.includes("park")) keywords.push("公園");
+
   if (text.includes("散歩")) keywords.push("散歩");
+  if (text.includes("walk")) keywords.push("散歩");
+
   if (text.includes("歴史")) keywords.push("歴史");
+  if (text.includes("history")) keywords.push("歴史");
+
   if (text.includes("のんびり")) keywords.push("のんびり");
+  if (text.includes("relax")) keywords.push("のんびり");
+
   if (text.includes("駅近")) keywords.push("駅近");
+  if (text.includes("near station")) keywords.push("駅近");
+
   if (text.includes("藤沢")) keywords.push("藤沢");
+  if (text.includes("fujisawa")) keywords.push("藤沢");
+
   if (text.includes("辻堂")) keywords.push("辻堂");
+  if (text.includes("tsujido")) keywords.push("辻堂");
+
   if (text.includes("江の島")) keywords.push("江の島");
+  if (text.includes("enoshima")) keywords.push("江の島");
+
   if (text.includes("湘南")) keywords.push("湘南");
+  if (text.includes("shonan")) keywords.push("湘南");
+
+  if (text.includes("おしゃれ")) keywords.push("おしゃれ");
+  if (text.includes("stylish")) keywords.push("おしゃれ");
+
+  if (text.includes("ゆったり")) keywords.push("ゆったり");
+  if (text.includes("relaxing")) keywords.push("ゆったり");
+
+  if (text.includes("がっつり")) keywords.push("がっつり");
+  if (text.includes("hearty")) keywords.push("がっつり");
+  if (text.includes("big meal")) keywords.push("がっつり");
 
   return keywords;
 }
@@ -264,12 +461,16 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
 
   const text = userText.toLowerCase();
 
-  if (text.includes("ランチ") && spot.tags.includes("ランチ")) score += 4;
-  if (text.includes("デート") && spot.tags.includes("デート")) score += 4;
-  if (text.includes("子連れ") && spot.tags.includes("子連れ")) score += 4;
-  if (text.includes("雨") && spot.tags.includes("雨の日")) score += 4;
-  if (text.includes("カフェ") && spot.category === "カフェ") score += 4;
-  if (text.includes("観光") && spot.category === "観光") score += 4;
+  if ((text.includes("ランチ") || text.includes("lunch")) && spot.tags.includes("ランチ")) score += 4;
+  if ((text.includes("デート") || text.includes("date")) && spot.tags.includes("デート")) score += 4;
+  if ((text.includes("子連れ") || text.includes("family") || text.includes("kids")) && spot.tags.includes("子連れ")) score += 4;
+  if ((text.includes("雨") || text.includes("rain")) && spot.tags.includes("雨の日")) score += 4;
+  if ((text.includes("カフェ") || text.includes("cafe") || text.includes("coffee")) && spot.category === "カフェ") score += 4;
+  if ((text.includes("観光") || text.includes("sightseeing") || text.includes("tour")) && spot.category === "観光") score += 4;
+  if ((text.includes("買い物") || text.includes("shopping")) && spot.category === "買い物") score += 4;
+  if ((text.includes("おしゃれ") || text.includes("stylish")) && spot.tags.includes("おしゃれ")) score += 4;
+  if ((text.includes("ゆったり") || text.includes("relaxing")) && spot.tags.includes("ゆったり")) score += 4;
+  if ((text.includes("がっつり") || text.includes("hearty")) && spot.tags.includes("がっつり")) score += 4;
 
   return score;
 }
@@ -328,6 +529,8 @@ ${SYSTEM_PROMPT}
 回答はLINE向けに短く、わかりやすくしてください。
 回答は3〜5行程度の読みやすい内容にしてください。
 少しだけユーモアを入れてOKです。
+英語での質問には英語で回答してください。
+日本語での質問には日本語で回答してください。
 
 以下のJSON形式で必ず返してください。
 {
@@ -369,14 +572,16 @@ ${candidateText}`
   return parsed;
 }
 
-async function replyNgInput(replyToken: string) {
+async function replyNgInput(replyToken: string, lang: "ja" | "en" = "ja") {
   await lineClient.replyMessage({
     replyToken,
     messages: [
       {
         type: "text",
         text:
-          "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
+          lang === "en"
+            ? "Please tell me a little more 😊\n\nHere are some examples:\n・Lunch in Fujisawa\n・Places to enjoy on a rainy day\n・Family-friendly spots\n・Places for a date"
+            : "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
       }
     ]
   });
@@ -389,34 +594,44 @@ async function handleEvent(event: webhook.Event) {
   const userText = event.message.text.trim();
   if (!userText) return;
 
-  // ① リッチメニュー「探す」→ 1問目Flex
-  if (userText === "探す") {
+  const lang = detectLanguage(userText);
+
+  if (userText === "探す" || userText.toLowerCase() === "search") {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [buildStartMessage() as any]
+      messages: [
+        lang === "en"
+          ? (buildStartMessageEn() as any)
+          : (buildStartMessage() as any)
+      ]
     });
     return;
   }
 
-  // ② 1問目の回答 → 2問目Flex
   if (["ランチ", "カフェ", "観光", "買い物"].includes(userText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [buildCompanionMessage(userText) as any]
+      messages: [
+        lang === "en"
+          ? (buildCompanionMessageEn(userText) as any)
+          : (buildCompanionMessage(userText) as any)
+      ]
     });
     return;
   }
 
-  // ③ 2問目の回答 → 3問目Flex
   if (userText.includes("|") && userText.split("|").length === 2) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [buildMoodMessage(userText) as any]
+      messages: [
+        lang === "en"
+          ? (buildMoodMessageEn(userText) as any)
+          : (buildMoodMessage(userText) as any)
+      ]
     });
     return;
   }
 
-  // ④ 3つ揃ったら検索
   if (userText.split("|").length === 3) {
     const query = userText.replaceAll("|", " ");
 
@@ -431,9 +646,8 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  // ⑤ 従来の自由入力も残す
   if (isNgInput(userText)) {
-    await replyNgInput(event.replyToken!);
+    await replyNgInput(event.replyToken!, lang);
     return;
   }
 
