@@ -16,6 +16,51 @@ type GourmetSpot = {
   tags: string[];
 };
 
+// ★追加：スタート用Flex
+function buildStartMessage() {
+  return {
+    type: "flex",
+    altText: "藤沢コンシェルジュ",
+    contents: {
+      type: "bubble",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        contents: [
+          {
+            type: "text",
+            text: "藤沢コンシェルジュ",
+            size: "xl",
+            weight: "bold"
+          },
+          {
+            type: "text",
+            text: "何をしたいですか？",
+            size: "md"
+          },
+          {
+            type: "button",
+            action: { type: "message", label: "🍽 ランチ", text: "ランチ" }
+          },
+          {
+            type: "button",
+            action: { type: "message", label: "☕ カフェ", text: "カフェ" }
+          },
+          {
+            type: "button",
+            action: { type: "message", label: "🎡 観光", text: "観光" }
+          },
+          {
+            type: "button",
+            action: { type: "message", label: "🛍 買い物", text: "買い物" }
+          }
+        ]
+      }
+    }
+  };
+}
+
 function safeJsonParse(text: string): InventJson | null {
   try {
     const cleaned = text
@@ -52,22 +97,7 @@ function isNgInput(userText: string) {
   if (/^(.)\1+$/.test(text)) return true;
 
   const shortAmbiguousList = [
-    "あ",
-    "い",
-    "う",
-    "え",
-    "お",
-    "a",
-    "aa",
-    "ai",
-    "1",
-    "2",
-    "3",
-    "ん",
-    "?",
-    "？",
-    "。",
-    "…"
+    "あ","い","う","え","お","a","aa","ai","1","2","3","ん","?","？","。","…"
   ];
 
   if (text.length <= 2 && shortAmbiguousList.includes(text.toLowerCase())) {
@@ -79,7 +109,6 @@ function isNgInput(userText: string) {
 
 function extractKeywords(userText: string) {
   const text = userText.toLowerCase();
-
   const keywords: string[] = [];
 
   if (text.includes("ランチ")) keywords.push("ランチ");
@@ -145,16 +174,11 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
   return spots.slice(0, limit);
 }
 
-async function generateTourStory(
-  userRequest: string,
-  candidates: GourmetSpot[]
-): Promise<InventJson> {
-  const candidateText = candidates
-    .map(
-      (spot, index) =>
-        `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
-    )
-    .join("\n\n");
+async function generateTourStory(userRequest: string, candidates: GourmetSpot[]): Promise<InventJson> {
+  const candidateText = candidates.map(
+    (spot, index) =>
+      `${index + 1}. ${spot.name}（${spot.area} / ${spot.category}）\n説明: ${spot.desc}\nタグ: ${spot.tags.join("、")}`
+  ).join("\n\n");
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -162,43 +186,8 @@ async function generateTourStory(
     max_tokens: 200,
     response_format: { type: "json_object" },
     messages: [
-      {
-        role: "system",
-        content: `
-${SYSTEM_PROMPT}
-
-あなたは「藤沢の観光コンシェルジュAI」です。
-地元（藤沢・江の島・辻堂・湘南）に詳しく、
-親しみやすくフレンドリーに案内してください。
-
-以下の候補スポットの中から、ユーザーの希望に最も合うものを1つ選び、
-短いストーリー形式で紹介してください。
-
-必ず候補の中にある実在スポット名だけを使ってください。
-候補にない店名や観光地名は作らないでください。
-空想の発明や架空設定は作らないでください。
-回答はLINE向けに短く、わかりやすくしてください。
-回答は3〜5行程度の読みやすい内容にしてください。
-少しだけユーモアを入れてOKです。
-
-以下のJSON形式で必ず返してください。
-{
-  "spot_name": "紹介の中心となるスポット名",
-  "spot_area": "エリア名",
-  "story_title": "短いタイトル",
-  "story_text": "情景が浮かぶ短いストーリー文",
-  "recommend_point": "おすすめ理由を一言で",
-  "concierge_message": "親しみやすい締めのひとこと"
-}
-`
-      },
-      {
-        role: "user",
-        content: `ユーザーの希望・相談: ${userRequest}
-
-候補スポット:
-${candidateText}`
-      }
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: `ユーザーの希望: ${userRequest}\n\n${candidateText}` }
     ]
   });
 
@@ -207,14 +196,13 @@ ${candidateText}`
 
   if (!parsed) {
     const first = candidates[0];
-
     return {
       spot_name: first.name,
       spot_area: first.area,
-      story_title: `${first.name}で藤沢らしさをひと休み`,
-      story_text: `${first.area}にある${first.name}は、${first.desc}。気負わず立ち寄りやすく、藤沢散策の途中にも組み込みやすいスポットです。`,
-      recommend_point: `${first.category}目的でも立ち寄りやすく、会話のきっかけも作りやすいです。`,
-      concierge_message: `迷ったらまずここで大丈夫ですぞ。いい流れを作りやすい一手です。`
+      story_title: `${first.name}のおすすめ`,
+      story_text: first.desc,
+      recommend_point: "気軽に行けるスポットです",
+      concierge_message: "迷ったらここでOKです！"
     };
   }
 
@@ -224,13 +212,7 @@ ${candidateText}`
 async function replyNgInput(replyToken: string) {
   await lineClient.replyMessage({
     replyToken,
-    messages: [
-      {
-        type: "text",
-        text:
-          "もう少し具体的に教えてください😊\n\nおすすめの聞き方はこちらです。\n・藤沢でランチ\n・雨の日でも楽しめる場所\n・子連れで行けるスポット\n・デートにおすすめの場所"
-      }
-    ]
+    messages: [{ type: "text", text: "もう少し具体的に教えてください😊" }]
   });
 }
 
@@ -241,112 +223,56 @@ async function handleEvent(event: webhook.Event) {
   const userText = event.message.text.trim();
   if (!userText) return;
 
-  // ① 1問目スタート
-  if (userText === "はじめる" || userText === "探す") {
+  // ★リッチメニュー「探す」
+  if (userText === "探す") {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [
-        {
-          type: "text",
-          text: "何をしたいですか？",
-          quickReply: {
-            items: [
-              {
-                type: "action",
-                action: { type: "message", label: "🍽 ランチ", text: "ランチ" }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "☕ カフェ", text: "カフェ" }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "🎡 観光", text: "観光" }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "🛍 買い物", text: "買い物" }
-              }
-            ]
-          }
-        }
-      ]
+      messages: [buildStartMessage() as any]
     });
     return;
   }
 
-  // ② 2問目
+  // ★2問目
   if (["ランチ", "カフェ", "観光", "買い物"].includes(userText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [
-        {
-          type: "text",
-          text: "誰と行きますか？",
-          quickReply: {
-            items: [
-              {
-                type: "action",
-                action: { type: "message", label: "👤 ひとり", text: `${userText}|ひとり` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "💑 デート", text: `${userText}|デート` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "👨‍👩‍👧 子連れ", text: `${userText}|子連れ` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "👥 友人", text: `${userText}|友人` }
-              }
-            ]
-          }
+      messages: [{
+        type: "text",
+        text: "誰と行きますか？",
+        quickReply: {
+          items: [
+            { type: "action", action: { type: "message", label: "ひとり", text: `${userText}|ひとり` } },
+            { type: "action", action: { type: "message", label: "デート", text: `${userText}|デート` } },
+            { type: "action", action: { type: "message", label: "子連れ", text: `${userText}|子連れ` } }
+          ]
         }
-      ]
+      }]
     });
     return;
   }
 
-  // ③ 3問目
+  // ★3問目
   if (userText.includes("|") && userText.split("|").length === 2) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [
-        {
-          type: "text",
-          text: "どんな過ごし方？",
-          quickReply: {
-            items: [
-              {
-                type: "action",
-                action: { type: "message", label: "✨ おしゃれ", text: `${userText}|おしゃれ` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "😌 ゆったり", text: `${userText}|ゆったり` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "💪 がっつり", text: `${userText}|がっつり` }
-              },
-              {
-                type: "action",
-                action: { type: "message", label: "☔ 雨の日OK", text: `${userText}|雨の日` }
-              }
-            ]
-          }
+      messages: [{
+        type: "text",
+        text: "どんな過ごし方？",
+        quickReply: {
+          items: [
+            { type: "action", action: { type: "message", label: "おしゃれ", text: `${userText}|おしゃれ` } },
+            { type: "action", action: { type: "message", label: "ゆったり", text: `${userText}|ゆったり` } },
+            { type: "action", action: { type: "message", label: "がっつり", text: `${userText}|がっつり` } }
+          ]
         }
-      ]
+      }]
     });
     return;
   }
 
-  // ④ 3つ揃ったら検索
+  // ★検索
   if (userText.split("|").length === 3) {
     const query = userText.replaceAll("|", " ");
-
     const candidates = pickRecommendedSpots(query, 3);
     const tourData = await generateTourStory(query, candidates);
     const flexMessage = buildFlexMessage(tourData);
@@ -358,7 +284,6 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  // ⑤ 従来の自由入力も残す
   if (isNgInput(userText)) {
     await replyNgInput(event.replyToken!);
     return;
@@ -376,44 +301,20 @@ async function handleEvent(event: webhook.Event) {
 
 export async function POST(req: NextRequest) {
   try {
-    const channelSecret = process.env.LINE_CHANNEL_SECRET;
-    if (!channelSecret) {
-      return NextResponse.json(
-        { ok: false, error: "LINE_CHANNEL_SECRET が未設定です。" },
-        { status: 500 }
-      );
-    }
-
-    const signature = req.headers.get("x-line-signature");
-    if (!signature) {
-      return NextResponse.json(
-        { ok: false, error: "x-line-signature がありません。" },
-        { status: 400 }
-      );
-    }
-
+    const channelSecret = process.env.LINE_CHANNEL_SECRET!;
+    const signature = req.headers.get("x-line-signature")!;
     const bodyText = await req.text();
 
-    const isValid = validateSignature(bodyText, channelSecret, signature);
-    if (!isValid) {
-      return NextResponse.json(
-        { ok: false, error: "署名検証に失敗しました。" },
-        { status: 401 }
-      );
+    if (!validateSignature(bodyText, channelSecret, signature)) {
+      return NextResponse.json({ ok: false }, { status: 401 });
     }
 
     const body = JSON.parse(bodyText) as webhook.CallbackRequest;
-    const events = body.events ?? [];
-
-    await Promise.all(events.map(handleEvent));
+    await Promise.all(body.events.map(handleEvent));
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json(
-      { ok: false, error: "Webhook処理中にエラーが発生しました。" },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }
 
