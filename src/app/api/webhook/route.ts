@@ -19,6 +19,7 @@ type GourmetSpot = {
   category: string;
   desc: string;
   tags: string[];
+  url?: string;
 };
 
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
@@ -26,8 +27,8 @@ const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as cons
 
 // ★追加：最近出た店を避けるための簡易メモリ
 const recentSpotsByQuery = new Map<string, string[]>();
-const RANDOM_POOL_SIZE = 5; // 上位何件からランダムに選ぶか
-const RECENT_HISTORY_LIMIT = 6; // 最近出た店の保持数
+const RANDOM_POOL_SIZE = 5;
+const RECENT_HISTORY_LIMIT = 6;
 
 function rememberRecentSpots(queryKey: string, spots: GourmetSpot[]) {
   const prev = recentSpotsByQuery.get(queryKey) ?? [];
@@ -74,7 +75,6 @@ function detectLanguage(text: string): "ja" | "en" | "zh" {
 
   const normalizedText = stripLanguagePrefix(text).trim();
 
-  // 内部キーとして使っている日本語メニューは明示的に日本語扱い
   if (
     (ROOT_MENU_KEYS as readonly string[]).includes(normalizedText) ||
     normalizedText.split("|").some((part) => (ROOT_MENU_KEYS as readonly string[]).includes(part))
@@ -82,16 +82,60 @@ function detectLanguage(text: string): "ja" | "en" | "zh" {
     return "ja";
   }
 
-  // ひらがな・カタカナがあれば日本語
   if (/[ぁ-んァ-ヶー]/.test(normalizedText)) return "ja";
-
-  // 英字があれば英語
   if (/[a-zA-Z]/.test(normalizedText)) return "en";
-
-  // 漢字のみなら中国語として扱う
   if (/[\u4e00-\u9fff]/.test(normalizedText)) return "zh";
 
   return "ja";
+}
+
+function getTimeOfDay(lang: "ja" | "en" | "zh" = "ja"): string {
+  const hour = new Date().getHours();
+
+  if (lang === "en") {
+    if (hour < 11) return "morning";
+    if (hour < 15) return "afternoon";
+    if (hour < 18) return "evening";
+    return "night";
+  }
+
+  if (lang === "zh") {
+    if (hour < 11) return "早上";
+    if (hour < 15) return "中午";
+    if (hour < 18) return "下午";
+    return "晚上";
+  }
+
+  if (hour < 11) return "朝";
+  if (hour < 15) return "昼";
+  if (hour < 18) return "午後";
+  return "夜";
+}
+
+function getWeather(): string {
+  // 仮実装。将来的に天気APIへ差し替え可能。
+  return "晴れ";
+}
+
+function localizeWeather(
+  weather: string,
+  lang: "ja" | "en" | "zh" = "ja"
+): string {
+  if (lang === "en") {
+    if (weather === "晴れ") return "sunny";
+    if (weather === "雨") return "rainy";
+    if (weather === "曇り") return "cloudy";
+    return weather;
+  }
+
+  if (lang === "zh") {
+    if (weather === "晴れ") return "晴天";
+    if (weather === "雨") return "雨天";
+    if (weather === "曇り") return "阴天";
+    return weather;
+  }
+
+  return weather;
 }
 
 function buildStartMessage() {
@@ -759,7 +803,9 @@ function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
 async function generateTourStory(
   userRequest: string,
   candidates: GourmetSpot[],
-  lang: "ja" | "en" | "zh" = "ja"
+  lang: "ja" | "en" | "zh" = "ja",
+  timeOfDay?: string,
+  weather?: string
 ): Promise<InventJson> {
   const candidateText =
     lang === "en"
@@ -798,6 +844,7 @@ Do not use fictional settings.
 Write the ENTIRE response in English.
 All fields in the JSON must be written in English.
 Keep it short and easy to read for LINE.
+Consider time of day and weather in your recommendation.
 
 Return ONLY this JSON:
 {
@@ -823,6 +870,7 @@ ${SYSTEM_PROMPT}
 请全部使用中文回答。
 所有 JSON 字段内容都必须是中文。
 内容请简短，适合 LINE 阅读。
+请结合时间段和天气进行推荐。
 
 只返回以下 JSON：
 {
@@ -851,6 +899,7 @@ ${SYSTEM_PROMPT}
 回答は3〜5行程度の読みやすい内容にしてください。
 少しだけユーモアを入れてOKです。
 回答は必ず日本語で書いてください。
+時間帯や天気も考慮して最適な提案をしてください。
 
 以下のJSON形式で必ず返してください。
 {
@@ -865,16 +914,25 @@ ${SYSTEM_PROMPT}
 
   const userPrompt =
     lang === "en"
-      ? `User request: ${userRequest}
+      ? `User conditions:
+${userRequest}
+Time of day: ${timeOfDay ?? "unknown"}
+Weather: ${weather ?? "unknown"}
 
 Candidate spots:
 ${candidateText}`
       : lang === "zh"
-      ? `用户需求: ${userRequest}
+      ? `用户条件:
+${userRequest}
+时间段: ${timeOfDay ?? "未知"}
+天气: ${weather ?? "未知"}
 
 候选地点:
 ${candidateText}`
-      : `ユーザーの希望・相談: ${userRequest}
+      : `ユーザー条件:
+${userRequest}
+時間帯: ${timeOfDay ?? "不明"}
+天気: ${weather ?? "不明"}
 
 候補スポット:
 ${candidateText}`;
@@ -978,10 +1036,10 @@ async function handleEvent(event: webhook.Event) {
       replyToken: event.replyToken!,
       messages: [
         lang === "en"
-          ? (buildStartMessageEn() as any)
+          ? buildStartMessageEn()
           : lang === "zh"
-          ? (buildStartMessageZh() as any)
-          : (buildStartMessage() as any)
+          ? buildStartMessageZh()
+          : buildStartMessage()
       ]
     });
     return;
@@ -992,10 +1050,10 @@ async function handleEvent(event: webhook.Event) {
       replyToken: event.replyToken!,
       messages: [
         lang === "en"
-          ? (buildCompanionMessageEn(userText) as any)
+          ? buildCompanionMessageEn(userText)
           : lang === "zh"
-          ? (buildCompanionMessageZh(userText) as any)
-          : (buildCompanionMessage(userText) as any)
+          ? buildCompanionMessageZh(userText)
+          : buildCompanionMessage(userText)
       ]
     });
     return;
@@ -1006,10 +1064,10 @@ async function handleEvent(event: webhook.Event) {
       replyToken: event.replyToken!,
       messages: [
         lang === "en"
-          ? (buildMoodMessageEn(userText) as any)
+          ? buildMoodMessageEn(userText)
           : lang === "zh"
-          ? (buildMoodMessageZh(userText) as any)
-          : (buildMoodMessage(userText) as any)
+          ? buildMoodMessageZh(userText)
+          : buildMoodMessage(userText)
       ]
     });
     return;
@@ -1018,19 +1076,29 @@ async function handleEvent(event: webhook.Event) {
   if (normalizedText.split("|").length === 3) {
     const cleanedText = stripLanguagePrefix(userText);
     const query = cleanedText.replaceAll("|", " ");
-
     const candidates = pickRecommendedSpots(query, 3);
-    const tourData = await generateTourStory(query, candidates, lang);
+    const timeOfDay = getTimeOfDay(lang);
+    const weather = localizeWeather(getWeather(), lang);
+    const tourData = await generateTourStory(
+      query,
+      candidates,
+      lang,
+      timeOfDay,
+      weather
+    );
+    const selectedSpot = candidates.find(
+      (spot) => spot.name === tourData.spot_name
+    );
     const flexMessage =
       lang === "en"
-        ? buildFlexMessageEn(tourData)
+        ? buildFlexMessageEn(tourData, selectedSpot?.url)
         : lang === "zh"
-        ? buildFlexMessageZh(tourData)
-        : buildFlexMessage(tourData);
+        ? buildFlexMessageZh(tourData, selectedSpot?.url)
+        : buildFlexMessage(tourData, selectedSpot?.url);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
-      messages: [flexMessage as any]
+      messages: [flexMessage]
     });
     return;
   }
@@ -1041,17 +1109,28 @@ async function handleEvent(event: webhook.Event) {
   }
 
   const candidates = pickRecommendedSpots(userText, 3);
-  const tourData = await generateTourStory(userText, candidates, lang);
+  const timeOfDay = getTimeOfDay(lang);
+  const weather = localizeWeather(getWeather(), lang);
+  const tourData = await generateTourStory(
+    userText,
+    candidates,
+    lang,
+    timeOfDay,
+    weather
+  );
+  const selectedSpot = candidates.find(
+    (spot) => spot.name === tourData.spot_name
+  );
   const flexMessage =
     lang === "en"
-      ? buildFlexMessageEn(tourData)
+      ? buildFlexMessageEn(tourData, selectedSpot?.url)
       : lang === "zh"
-      ? buildFlexMessageZh(tourData)
-      : buildFlexMessage(tourData);
+      ? buildFlexMessageZh(tourData, selectedSpot?.url)
+      : buildFlexMessage(tourData, selectedSpot?.url);
 
   await lineClient.replyMessage({
     replyToken: event.replyToken!,
-    messages: [flexMessage as any]
+    messages: [flexMessage]
   });
 }
 
@@ -1074,8 +1153,8 @@ export async function POST(req: NextRequest) {
     }
 
     const bodyText = await req.text();
-
     const isValid = validateSignature(bodyText, channelSecret, signature);
+
     if (!isValid) {
       return NextResponse.json(
         { ok: false, error: "署名検証に失敗しました。" },

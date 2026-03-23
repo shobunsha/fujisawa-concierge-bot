@@ -9,7 +9,26 @@ export type InventJson = {
   concierge_message: string;
 };
 
-export function buildFlexMessage(data: InventJson): FlexMessage {
+function buildWebsiteButton(label: string, url?: string) {
+  if (!url) return null;
+
+  return {
+    type: "button",
+    style: "link",
+    action: {
+      type: "uri",
+      label,
+      uri: url
+    }
+  } as const;
+}
+
+export function buildFlexMessage(
+  data: InventJson,
+  url?: string
+): FlexMessage {
+  const websiteButton = buildWebsiteButton("公式サイトを見る", url);
+
   return {
     type: "flex",
     altText: `${data.spot_name}｜${data.story_title}`,
@@ -126,7 +145,8 @@ export function buildFlexMessage(data: InventJson): FlexMessage {
             color: "#374151",
             wrap: true,
             margin: "md"
-          }
+          },
+          ...(websiteButton ? [websiteButton] : [])
         ],
         paddingAll: "20px"
       }
@@ -134,7 +154,12 @@ export function buildFlexMessage(data: InventJson): FlexMessage {
   };
 }
 
-export function buildFlexMessageEn(data: InventJson): FlexMessage {
+export function buildFlexMessageEn(
+  data: InventJson,
+  url?: string
+): FlexMessage {
+  const websiteButton = buildWebsiteButton("Open website", url);
+
   return {
     type: "flex",
     altText: `${data.spot_name} | ${data.story_title}`,
@@ -251,7 +276,8 @@ export function buildFlexMessageEn(data: InventJson): FlexMessage {
             color: "#374151",
             wrap: true,
             margin: "md"
-          }
+          },
+          ...(websiteButton ? [websiteButton] : [])
         ],
         paddingAll: "20px"
       }
@@ -259,7 +285,12 @@ export function buildFlexMessageEn(data: InventJson): FlexMessage {
   };
 }
 
-export function buildFlexMessageZh(data: InventJson): FlexMessage {
+export function buildFlexMessageZh(
+  data: InventJson,
+  url?: string
+): FlexMessage {
+  const websiteButton = buildWebsiteButton("查看官网", url);
+
   return {
     type: "flex",
     altText: `${data.spot_name}｜${data.story_title}`,
@@ -376,7 +407,8 @@ export function buildFlexMessageZh(data: InventJson): FlexMessage {
             color: "#374151",
             wrap: true,
             margin: "md"
-          }
+          },
+          ...(websiteButton ? [websiteButton] : [])
         ],
         paddingAll: "20px"
       }
