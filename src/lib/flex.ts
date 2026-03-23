@@ -27,10 +27,10 @@ function buildFooter(label: string, url?: string) {
         }
       }
     ]
-  } as const;
+  };
 }
 
-export function buildFlexMessage(data: InventJson, url?: string) {
+export function buildFlexMessage(data: InventJson, url?: string): Message {
   const footer = buildFooter("公式サイトを見る", url);
 
   return {
@@ -153,12 +153,12 @@ export function buildFlexMessage(data: InventJson, url?: string) {
         ],
         paddingAll: "20px"
       },
-      ...(footer ? { footer } : {})
+      footer
     }
-  } as const satisfies Message;
+  } as Message;
 }
 
-export function buildFlexMessageEn(data: InventJson, url?: string) {
+export function buildFlexMessageEn(data: InventJson, url?: string): Message {
   const footer = buildFooter("Open website", url);
 
   return {
@@ -281,12 +281,12 @@ export function buildFlexMessageEn(data: InventJson, url?: string) {
         ],
         paddingAll: "20px"
       },
-      ...(footer ? { footer } : {})
+      footer
     }
-  } as const satisfies Message;
+  } as Message;
 }
 
-export function buildFlexMessageZh(data: InventJson, url?: string) {
+export function buildFlexMessageZh(data: InventJson, url?: string): Message {
   const footer = buildFooter("查看官网", url);
 
   return {
@@ -409,7 +409,7 @@ export function buildFlexMessageZh(data: InventJson, url?: string) {
         ],
         paddingAll: "20px"
       },
-      ...(footer ? { footer } : {})
+      footer
     }
-  } as const satisfies Message;
+  } as Message;
 }
