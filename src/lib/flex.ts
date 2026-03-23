@@ -9,22 +9,29 @@ export type InventJson = {
   concierge_message: string;
 };
 
-function buildWebsiteButton(label: string, url?: string) {
-  if (!url) return null;
+function buildFooter(label: string, url?: string) {
+  if (!url) return undefined;
 
   return {
-    type: "button",
-    style: "link",
-    action: {
-      type: "uri",
-      label,
-      uri: url
-    }
+    type: "box",
+    layout: "vertical",
+    spacing: "sm",
+    contents: [
+      {
+        type: "button",
+        style: "link",
+        action: {
+          type: "uri",
+          label,
+          uri: url
+        }
+      }
+    ]
   } as const;
 }
 
 export function buildFlexMessage(data: InventJson, url?: string) {
-  const websiteButton = buildWebsiteButton("公式サイトを見る", url);
+  const footer = buildFooter("公式サイトを見る", url);
 
   return {
     type: "flex",
@@ -142,17 +149,17 @@ export function buildFlexMessage(data: InventJson, url?: string) {
             color: "#374151",
             wrap: true,
             margin: "md"
-          },
-          ...(websiteButton ? [websiteButton] : [])
+          }
         ],
         paddingAll: "20px"
-      }
+      },
+      ...(footer ? { footer } : {})
     }
   } as const satisfies Message;
 }
 
 export function buildFlexMessageEn(data: InventJson, url?: string) {
-  const websiteButton = buildWebsiteButton("Open website", url);
+  const footer = buildFooter("Open website", url);
 
   return {
     type: "flex",
@@ -270,17 +277,17 @@ export function buildFlexMessageEn(data: InventJson, url?: string) {
             color: "#374151",
             wrap: true,
             margin: "md"
-          },
-          ...(websiteButton ? [websiteButton] : [])
+          }
         ],
         paddingAll: "20px"
-      }
+      },
+      ...(footer ? { footer } : {})
     }
   } as const satisfies Message;
 }
 
 export function buildFlexMessageZh(data: InventJson, url?: string) {
-  const websiteButton = buildWebsiteButton("查看官网", url);
+  const footer = buildFooter("查看官网", url);
 
   return {
     type: "flex",
@@ -398,11 +405,11 @@ export function buildFlexMessageZh(data: InventJson, url?: string) {
             color: "#374151",
             wrap: true,
             margin: "md"
-          },
-          ...(websiteButton ? [websiteButton] : [])
+          }
         ],
         paddingAll: "20px"
-      }
+      },
+      ...(footer ? { footer } : {})
     }
   } as const satisfies Message;
 }

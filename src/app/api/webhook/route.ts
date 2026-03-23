@@ -90,8 +90,19 @@ function detectLanguage(text: string): "ja" | "en" | "zh" {
   return "ja";
 }
 
+function getTokyoHour(): number {
+  const parts = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    hour: "numeric",
+    hour12: false
+  }).formatToParts(new Date());
+
+  const hourText = parts.find((part) => part.type === "hour")?.value ?? "0";
+  return Number(hourText);
+}
+
 function getTimeOfDay(lang: "ja" | "en" | "zh" = "ja"): string {
-  const hour = new Date().getHours();
+  const hour = getTokyoHour();
 
   if (lang === "en") {
     if (hour < 11) return "morning";
@@ -114,6 +125,7 @@ function getTimeOfDay(lang: "ja" | "en" | "zh" = "ja"): string {
 }
 
 function getWeather(): string {
+  // 仮実装。将来的にここだけAPI差し替え
   return "晴れ";
 }
 
@@ -136,6 +148,26 @@ function localizeWeather(
   }
 
   return weather;
+}
+
+function normalizeSpotName(text: string): string {
+  return text
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/　/g, "")
+    .replace(/（.*?）/g, "")
+    .replace(/\(.*?\)/g, "");
+}
+
+function findSelectedSpot(
+  candidates: GourmetSpot[],
+  spotName: string
+): GourmetSpot | undefined {
+  const normalizedTarget = normalizeSpotName(spotName);
+
+  return candidates.find(
+    (spot) => normalizeSpotName(spot.name) === normalizedTarget
+  );
 }
 
 function buildStartMessage() {
@@ -745,85 +777,16 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
 
   const text = userText.toLowerCase();
 
-  if (
-    (text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) &&
-    spot.tags.includes("ランチ")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("デート") || text.includes("date") || text.includes("约会")) &&
-    spot.tags.includes("デート")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("子連れ") ||
-      text.includes("family") ||
-      text.includes("kids") ||
-      text.includes("亲子") ||
-      text.includes("家庭")) &&
-    spot.tags.includes("子連れ")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("雨") || text.includes("rain") || text.includes("雨天")) &&
-    spot.tags.includes("雨の日")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("カフェ") ||
-      text.includes("cafe") ||
-      text.includes("coffee") ||
-      text.includes("咖啡")) &&
-    spot.category === "カフェ"
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("観光") ||
-      text.includes("sightseeing") ||
-      text.includes("tour") ||
-      text.includes("观光") ||
-      text.includes("旅游")) &&
-    spot.category === "観光"
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("買い物") ||
-      text.includes("shopping") ||
-      text.includes("购物")) &&
-    spot.category === "買い物"
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("おしゃれ") ||
-      text.includes("stylish") ||
-      text.includes("时尚")) &&
-    spot.tags.includes("おしゃれ")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("ゆったり") ||
-      text.includes("relaxing") ||
-      text.includes("悠闲")) &&
-    spot.tags.includes("ゆったり")
-  ) {
-    score += 4;
-  }
-  if (
-    (text.includes("がっつり") ||
-      text.includes("hearty") ||
-      text.includes("丰盛")) &&
-    spot.tags.includes("がっつり")
-  ) {
-    score += 4;
-  }
+  if ((text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) && spot.tags.includes("ランチ")) score += 4;
+  if ((text.includes("デート") || text.includes("date") || text.includes("约会")) && spot.tags.includes("デート")) score += 4;
+  if ((text.includes("子連れ") || text.includes("family") || text.includes("kids") || text.includes("亲子") || text.includes("家庭")) && spot.tags.includes("子連れ")) score += 4;
+  if ((text.includes("雨") || text.includes("rain") || text.includes("雨天")) && spot.tags.includes("雨の日")) score += 4;
+  if ((text.includes("カフェ") || text.includes("cafe") || text.includes("coffee") || text.includes("咖啡")) && spot.category === "カフェ") score += 4;
+  if ((text.includes("観光") || text.includes("sightseeing") || text.includes("tour") || text.includes("观光") || text.includes("旅游")) && spot.category === "観光") score += 4;
+  if ((text.includes("買い物") || text.includes("shopping") || text.includes("购物")) && spot.category === "買い物") score += 4;
+  if ((text.includes("おしゃれ") || text.includes("stylish") || text.includes("时尚")) && spot.tags.includes("おしゃれ")) score += 4;
+  if ((text.includes("ゆったり") || text.includes("relaxing") || text.includes("悠闲")) && spot.tags.includes("ゆったり")) score += 4;
+  if ((text.includes("がっつり") || text.includes("hearty") || text.includes("丰盛")) && spot.tags.includes("がっつり")) score += 4;
 
   return score;
 }
@@ -913,6 +876,9 @@ Write the ENTIRE response in English.
 All fields in the JSON must be written in English.
 Keep it short and easy to read for LINE.
 Consider time of day and weather in your recommendation.
+Treat the provided time of day and weather as system-given conditions.
+Do not say you cannot know the weather.
+Use the spot name exactly as written in the candidate list.
 
 Return ONLY this JSON:
 {
@@ -939,6 +905,9 @@ ${SYSTEM_PROMPT}
 所有 JSON 字段内容都必须是中文。
 内容请简短，适合 LINE 阅读。
 请结合时间段和天气进行推荐。
+时间段和天气是系统提供的条件，请直接据此推荐。
+不要写“无法判断天气”之类的表述。
+景点名称必须与候选列表中的名称完全一致。
 
 只返回以下 JSON：
 {
@@ -968,6 +937,9 @@ ${SYSTEM_PROMPT}
 少しだけユーモアを入れてOKです。
 回答は必ず日本語で書いてください。
 時間帯や天気も考慮して最適な提案をしてください。
+時間帯と天気はシステムから与えられた条件です。
+「天気がわからない」「判断できない」とは書かず、その条件を前提に提案してください。
+スポット名は候補にある名称を一字一句変えずに使ってください。
 
 以下のJSON形式で必ず返してください。
 {
@@ -1156,9 +1128,7 @@ async function handleEvent(event: webhook.Event) {
       weather
     );
 
-    const selectedSpot = candidates.find(
-      (spot) => spot.name === tourData.spot_name
-    );
+    const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
 
     const flexMessage =
       lang === "en"
@@ -1191,9 +1161,7 @@ async function handleEvent(event: webhook.Event) {
     weather
   );
 
-  const selectedSpot = candidates.find(
-    (spot) => spot.name === tourData.spot_name
-  );
+  const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
 
   const flexMessage =
     lang === "en"
