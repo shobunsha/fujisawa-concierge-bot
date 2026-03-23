@@ -21,6 +21,9 @@ type GourmetSpot = {
   tags: string[];
 };
 
+const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
+const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
+
 // ★追加：最近出た店を避けるための簡易メモリ
 const recentSpotsByQuery = new Map<string, string[]>();
 const RANDOM_POOL_SIZE = 5; // 上位何件からランダムに選ぶか
@@ -55,18 +58,38 @@ function shuffleArray<T>(items: T[]): T[] {
   return arr;
 }
 
+function stripLanguagePrefix(text: string): string {
+  for (const prefix of LANGUAGE_PREFIXES) {
+    if (text.startsWith(prefix)) {
+      return text.slice(prefix.length);
+    }
+  }
+  return text;
+}
+
 function detectLanguage(text: string): "ja" | "en" | "zh" {
+  if (text.startsWith("ja|")) return "ja";
   if (text.startsWith("en|")) return "en";
   if (text.startsWith("zh|")) return "zh";
 
+  const normalizedText = stripLanguagePrefix(text).trim();
+
+  // 内部キーとして使っている日本語メニューは明示的に日本語扱い
+  if (
+    (ROOT_MENU_KEYS as readonly string[]).includes(normalizedText) ||
+    normalizedText.split("|").some((part) => (ROOT_MENU_KEYS as readonly string[]).includes(part))
+  ) {
+    return "ja";
+  }
+
   // ひらがな・カタカナがあれば日本語
-  if (/[ぁ-んァ-ヶー]/.test(text)) return "ja";
+  if (/[ぁ-んァ-ヶー]/.test(normalizedText)) return "ja";
 
   // 英字があれば英語
-  if (/[a-zA-Z]/.test(text)) return "en";
+  if (/[a-zA-Z]/.test(normalizedText)) return "en";
 
   // 漢字のみなら中国語として扱う
-  if (/[\u4e00-\u9fff]/.test(text)) return "zh";
+  if (/[\u4e00-\u9fff]/.test(normalizedText)) return "zh";
 
   return "ja";
 }
@@ -96,22 +119,22 @@ function buildStartMessage() {
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🍽 ランチ", text: "ランチ" }
+            action: { type: "message", label: "🍽 ランチ", text: "ja|ランチ" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "☕ カフェ", text: "カフェ" }
+            action: { type: "message", label: "☕ カフェ", text: "ja|カフェ" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🎡 観光", text: "観光" }
+            action: { type: "message", label: "🎡 観光", text: "ja|観光" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🛍 買い物", text: "買い物" }
+            action: { type: "message", label: "🛍 買い物", text: "ja|買い物" }
           }
         ]
       }
@@ -942,11 +965,7 @@ async function handleEvent(event: webhook.Event) {
   if (!userText) return;
 
   const lang = detectLanguage(userText);
-  const normalizedText = userText.startsWith("en|")
-    ? userText.replace(/^en\|/, "")
-    : userText.startsWith("zh|")
-    ? userText.replace(/^zh\|/, "")
-    : userText;
+  const normalizedText = stripLanguagePrefix(userText);
 
   if (
     userText === "探す" ||
@@ -968,7 +987,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  if (["ランチ", "カフェ", "観光", "買い物"].includes(normalizedText)) {
+  if ((ROOT_MENU_KEYS as readonly string[]).includes(normalizedText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
@@ -997,12 +1016,7 @@ async function handleEvent(event: webhook.Event) {
   }
 
   if (normalizedText.split("|").length === 3) {
-    const cleanedText = userText.startsWith("en|")
-      ? userText.replace(/^en\|/, "")
-      : userText.startsWith("zh|")
-      ? userText.replace(/^zh\|/, "")
-      : userText;
-
+    const cleanedText = stripLanguagePrefix(userText);
     const query = cleanedText.replaceAll("|", " ");
 
     const candidates = pickRecommendedSpots(query, 3);
