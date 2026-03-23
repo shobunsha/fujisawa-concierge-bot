@@ -1,11 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import {
-  validateSignature,
-  webhook,
-  type FlexMessage
-} from "@line/bot-sdk";
+import { validateSignature, webhook, type Message } from "@line/bot-sdk";
 import { lineClient } from "@/lib/line";
 import { openai } from "@/lib/openai";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
@@ -29,7 +25,6 @@ type GourmetSpot = {
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
 const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
 
-// 最近出た店を避けるための簡易メモリ
 const recentSpotsByQuery = new Map<string, string[]>();
 const RANDOM_POOL_SIZE = 5;
 const RECENT_HISTORY_LIMIT = 6;
@@ -119,7 +114,6 @@ function getTimeOfDay(lang: "ja" | "en" | "zh" = "ja"): string {
 }
 
 function getWeather(): string {
-  // 仮実装。将来的に天気APIへ差し替え可能。
   return "晴れ";
 }
 
@@ -144,7 +138,7 @@ function localizeWeather(
   return weather;
 }
 
-function buildStartMessage(): FlexMessage {
+function buildStartMessage() {
   return {
     type: "flex",
     altText: "藤沢コンシェルジュ",
@@ -188,11 +182,11 @@ function buildStartMessage(): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildStartMessageEn(): FlexMessage {
+function buildStartMessageEn() {
   return {
     type: "flex",
     altText: "Fujisawa Concierge",
@@ -236,11 +230,11 @@ function buildStartMessageEn(): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildStartMessageZh(): FlexMessage {
+function buildStartMessageZh() {
   return {
     type: "flex",
     altText: "藤泽导览AI",
@@ -284,11 +278,11 @@ function buildStartMessageZh(): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildCompanionMessage(baseText: string): FlexMessage {
+function buildCompanionMessage(baseText: string) {
   return {
     type: "flex",
     altText: "誰と行きますか？",
@@ -334,11 +328,11 @@ function buildCompanionMessage(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildCompanionMessageEn(baseText: string): FlexMessage {
+function buildCompanionMessageEn(baseText: string) {
   return {
     type: "flex",
     altText: "Who are you going with?",
@@ -384,11 +378,11 @@ function buildCompanionMessageEn(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildCompanionMessageZh(baseText: string): FlexMessage {
+function buildCompanionMessageZh(baseText: string) {
   return {
     type: "flex",
     altText: "和谁一起去？",
@@ -434,11 +428,11 @@ function buildCompanionMessageZh(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildMoodMessage(baseText: string): FlexMessage {
+function buildMoodMessage(baseText: string) {
   return {
     type: "flex",
     altText: "どんな過ごし方？",
@@ -484,11 +478,11 @@ function buildMoodMessage(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildMoodMessageEn(baseText: string): FlexMessage {
+function buildMoodMessageEn(baseText: string) {
   return {
     type: "flex",
     altText: "What kind of mood?",
@@ -534,11 +528,11 @@ function buildMoodMessageEn(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-function buildMoodMessageZh(baseText: string): FlexMessage {
+function buildMoodMessageZh(baseText: string) {
   return {
     type: "flex",
     altText: "想怎么度过？",
@@ -584,8 +578,8 @@ function buildMoodMessageZh(baseText: string): FlexMessage {
           }
         ]
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
 function safeJsonParse(text: string): InventJson | null {

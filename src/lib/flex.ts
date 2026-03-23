@@ -1,4 +1,4 @@
-import type { FlexMessage } from "@line/bot-sdk";
+import type { Message } from "@line/bot-sdk";
 
 export type InventJson = {
   spot_name: string;
@@ -23,10 +23,7 @@ function buildWebsiteButton(label: string, url?: string) {
   } as const;
 }
 
-export function buildFlexMessage(
-  data: InventJson,
-  url?: string
-): FlexMessage {
+export function buildFlexMessage(data: InventJson, url?: string) {
   const websiteButton = buildWebsiteButton("公式サイトを見る", url);
 
   return {
@@ -150,14 +147,11 @@ export function buildFlexMessage(
         ],
         paddingAll: "20px"
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-export function buildFlexMessageEn(
-  data: InventJson,
-  url?: string
-): FlexMessage {
+export function buildFlexMessageEn(data: InventJson, url?: string) {
   const websiteButton = buildWebsiteButton("Open website", url);
 
   return {
@@ -281,14 +275,11 @@ export function buildFlexMessageEn(
         ],
         paddingAll: "20px"
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
 
-export function buildFlexMessageZh(
-  data: InventJson,
-  url?: string
-): FlexMessage {
+export function buildFlexMessageZh(data: InventJson, url?: string) {
   const websiteButton = buildWebsiteButton("查看官网", url);
 
   return {
@@ -412,6 +403,6 @@ export function buildFlexMessageZh(
         ],
         paddingAll: "20px"
       }
-    } as const
-  };
+    }
+  } as const satisfies Message;
 }
