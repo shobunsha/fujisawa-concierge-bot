@@ -1,7 +1,11 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { validateSignature, webhook } from "@line/bot-sdk";
+import {
+  validateSignature,
+  webhook,
+  type FlexMessage
+} from "@line/bot-sdk";
 import { lineClient } from "@/lib/line";
 import { openai } from "@/lib/openai";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
@@ -25,7 +29,7 @@ type GourmetSpot = {
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
 const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
 
-// ★追加：最近出た店を避けるための簡易メモリ
+// 最近出た店を避けるための簡易メモリ
 const recentSpotsByQuery = new Map<string, string[]>();
 const RANDOM_POOL_SIZE = 5;
 const RECENT_HISTORY_LIMIT = 6;
@@ -77,7 +81,9 @@ function detectLanguage(text: string): "ja" | "en" | "zh" {
 
   if (
     (ROOT_MENU_KEYS as readonly string[]).includes(normalizedText) ||
-    normalizedText.split("|").some((part) => (ROOT_MENU_KEYS as readonly string[]).includes(part))
+    normalizedText
+      .split("|")
+      .some((part) => (ROOT_MENU_KEYS as readonly string[]).includes(part))
   ) {
     return "ja";
   }
@@ -138,7 +144,7 @@ function localizeWeather(
   return weather;
 }
 
-function buildStartMessage() {
+function buildStartMessage(): FlexMessage {
   return {
     type: "flex",
     altText: "藤沢コンシェルジュ",
@@ -182,11 +188,11 @@ function buildStartMessage() {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildStartMessageEn() {
+function buildStartMessageEn(): FlexMessage {
   return {
     type: "flex",
     altText: "Fujisawa Concierge",
@@ -230,11 +236,11 @@ function buildStartMessageEn() {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildStartMessageZh() {
+function buildStartMessageZh(): FlexMessage {
   return {
     type: "flex",
     altText: "藤泽导览AI",
@@ -278,11 +284,11 @@ function buildStartMessageZh() {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildCompanionMessage(baseText: string) {
+function buildCompanionMessage(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "誰と行きますか？",
@@ -328,11 +334,11 @@ function buildCompanionMessage(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildCompanionMessageEn(baseText: string) {
+function buildCompanionMessageEn(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "Who are you going with?",
@@ -378,11 +384,11 @@ function buildCompanionMessageEn(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildCompanionMessageZh(baseText: string) {
+function buildCompanionMessageZh(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "和谁一起去？",
@@ -428,11 +434,11 @@ function buildCompanionMessageZh(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildMoodMessage(baseText: string) {
+function buildMoodMessage(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "どんな過ごし方？",
@@ -478,11 +484,11 @@ function buildMoodMessage(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildMoodMessageEn(baseText: string) {
+function buildMoodMessageEn(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "What kind of mood?",
@@ -528,11 +534,11 @@ function buildMoodMessageEn(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
-function buildMoodMessageZh(baseText: string) {
+function buildMoodMessageZh(baseText: string): FlexMessage {
   return {
     type: "flex",
     altText: "想怎么度过？",
@@ -578,7 +584,7 @@ function buildMoodMessageZh(baseText: string) {
           }
         ]
       }
-    }
+    } as const
   };
 }
 
@@ -645,7 +651,6 @@ function isNgInput(userText: string) {
 
 function extractKeywords(userText: string) {
   const text = userText.toLowerCase();
-
   const keywords: string[] = [];
 
   if (text.includes("ランチ")) keywords.push("ランチ");
@@ -746,16 +751,85 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
 
   const text = userText.toLowerCase();
 
-  if ((text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) && spot.tags.includes("ランチ")) score += 4;
-  if ((text.includes("デート") || text.includes("date") || text.includes("约会")) && spot.tags.includes("デート")) score += 4;
-  if ((text.includes("子連れ") || text.includes("family") || text.includes("kids") || text.includes("亲子") || text.includes("家庭")) && spot.tags.includes("子連れ")) score += 4;
-  if ((text.includes("雨") || text.includes("rain") || text.includes("雨天")) && spot.tags.includes("雨の日")) score += 4;
-  if ((text.includes("カフェ") || text.includes("cafe") || text.includes("coffee") || text.includes("咖啡")) && spot.category === "カフェ") score += 4;
-  if ((text.includes("観光") || text.includes("sightseeing") || text.includes("tour") || text.includes("观光") || text.includes("旅游")) && spot.category === "観光") score += 4;
-  if ((text.includes("買い物") || text.includes("shopping") || text.includes("购物")) && spot.category === "買い物") score += 4;
-  if ((text.includes("おしゃれ") || text.includes("stylish") || text.includes("时尚")) && spot.tags.includes("おしゃれ")) score += 4;
-  if ((text.includes("ゆったり") || text.includes("relaxing") || text.includes("悠闲")) && spot.tags.includes("ゆったり")) score += 4;
-  if ((text.includes("がっつり") || text.includes("hearty") || text.includes("丰盛")) && spot.tags.includes("がっつり")) score += 4;
+  if (
+    (text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) &&
+    spot.tags.includes("ランチ")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("デート") || text.includes("date") || text.includes("约会")) &&
+    spot.tags.includes("デート")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("子連れ") ||
+      text.includes("family") ||
+      text.includes("kids") ||
+      text.includes("亲子") ||
+      text.includes("家庭")) &&
+    spot.tags.includes("子連れ")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("雨") || text.includes("rain") || text.includes("雨天")) &&
+    spot.tags.includes("雨の日")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("カフェ") ||
+      text.includes("cafe") ||
+      text.includes("coffee") ||
+      text.includes("咖啡")) &&
+    spot.category === "カフェ"
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("観光") ||
+      text.includes("sightseeing") ||
+      text.includes("tour") ||
+      text.includes("观光") ||
+      text.includes("旅游")) &&
+    spot.category === "観光"
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("買い物") ||
+      text.includes("shopping") ||
+      text.includes("购物")) &&
+    spot.category === "買い物"
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("おしゃれ") ||
+      text.includes("stylish") ||
+      text.includes("时尚")) &&
+    spot.tags.includes("おしゃれ")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("ゆったり") ||
+      text.includes("relaxing") ||
+      text.includes("悠闲")) &&
+    spot.tags.includes("ゆったり")
+  ) {
+    score += 4;
+  }
+  if (
+    (text.includes("がっつり") ||
+      text.includes("hearty") ||
+      text.includes("丰盛")) &&
+    spot.tags.includes("がっつり")
+  ) {
+    score += 4;
+  }
 
   return score;
 }
@@ -966,8 +1040,8 @@ ${candidateText}`;
         spot_area: first.area,
         story_title: `A good stop in Fujisawa: ${first.name}`,
         story_text: `${first.name} in ${first.area} is an easy place to visit during a walk around Fujisawa. ${first.desc}`,
-        recommend_point: `A convenient and enjoyable option for this kind of outing.`,
-        concierge_message: `If you are not sure, this is a safe and pleasant choice.`
+        recommend_point: "A convenient and enjoyable option for this kind of outing.",
+        concierge_message: "If you are not sure, this is a safe and pleasant choice."
       };
     }
 
@@ -977,8 +1051,8 @@ ${candidateText}`;
         spot_area: first.area,
         story_title: `${first.name}：藤泽不错的一站`,
         story_text: `${first.name}位于${first.area}，很适合在藤泽散步途中顺路前往。${first.desc}`,
-        recommend_point: `这是一个轻松又方便的选择。`,
-        concierge_message: `如果拿不准，选这里通常不会出错。`
+        recommend_point: "这是一个轻松又方便的选择。",
+        concierge_message: "如果拿不准，选这里通常不会出错。"
       };
     }
 
@@ -988,7 +1062,7 @@ ${candidateText}`;
       story_title: `${first.name}で藤沢らしさをひと休み`,
       story_text: `${first.area}にある${first.name}は、${first.desc}。気負わず立ち寄りやすく、藤沢散策の途中にも組み込みやすいスポットです。`,
       recommend_point: `${first.category}目的でも立ち寄りやすく、会話のきっかけも作りやすいです。`,
-      concierge_message: `迷ったらまずここで大丈夫ですぞ。いい流れを作りやすい一手です。`
+      concierge_message: "迷ったらまずここで大丈夫ですぞ。いい流れを作りやすい一手です。"
     };
   }
 
@@ -1079,6 +1153,7 @@ async function handleEvent(event: webhook.Event) {
     const candidates = pickRecommendedSpots(query, 3);
     const timeOfDay = getTimeOfDay(lang);
     const weather = localizeWeather(getWeather(), lang);
+
     const tourData = await generateTourStory(
       query,
       candidates,
@@ -1086,9 +1161,11 @@ async function handleEvent(event: webhook.Event) {
       timeOfDay,
       weather
     );
+
     const selectedSpot = candidates.find(
       (spot) => spot.name === tourData.spot_name
     );
+
     const flexMessage =
       lang === "en"
         ? buildFlexMessageEn(tourData, selectedSpot?.url)
@@ -1111,6 +1188,7 @@ async function handleEvent(event: webhook.Event) {
   const candidates = pickRecommendedSpots(userText, 3);
   const timeOfDay = getTimeOfDay(lang);
   const weather = localizeWeather(getWeather(), lang);
+
   const tourData = await generateTourStory(
     userText,
     candidates,
@@ -1118,9 +1196,11 @@ async function handleEvent(event: webhook.Event) {
     timeOfDay,
     weather
   );
+
   const selectedSpot = candidates.find(
     (spot) => spot.name === tourData.spot_name
   );
+
   const flexMessage =
     lang === "en"
       ? buildFlexMessageEn(tourData, selectedSpot?.url)
