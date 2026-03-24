@@ -19,14 +19,16 @@ function buildGoogleMapsUrl(query?: string): string | undefined {
 function buildFooter(
   detailLabel: string,
   mapLabel: string,
+  moreLabel: string,
   spotName: string,
+  retryText?: string,
   url?: string
 ): messagingApi.FlexBox | undefined {
   const mapUrl = buildGoogleMapsUrl(spotName);
 
-  if (!url && !mapUrl) return undefined;
+  if (!url && !mapUrl && !retryText) return undefined;
 
-  const contents: messagingApi.FlexButton[] = [];
+  const contents: messagingApi.FlexComponent[] = [];
 
   if (url) {
     contents.push({
@@ -56,6 +58,19 @@ function buildFooter(
     });
   }
 
+  if (retryText) {
+    contents.push({
+      type: "button",
+      style: "secondary",
+      height: "sm",
+      action: {
+        type: "message",
+        label: moreLabel,
+        text: retryText
+      }
+    });
+  }
+
   return {
     type: "box",
     layout: "horizontal",
@@ -67,9 +82,17 @@ function buildFooter(
 
 export function buildFlexMessage(
   data: InventJson,
+  retryText?: string,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("詳細を見る", "地図を見る", data.spot_name, url);
+  const footer = buildFooter(
+    "詳細を見る",
+    "地図を見る",
+    "他の候補を見る",
+    data.spot_name,
+    retryText,
+    url
+  );
 
   return {
     type: "flex",
@@ -198,9 +221,17 @@ export function buildFlexMessage(
 
 export function buildFlexMessageEn(
   data: InventJson,
+  retryText?: string,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("View details", "View map", data.spot_name, url);
+  const footer = buildFooter(
+    "View details",
+    "View map",
+    "See other options",
+    data.spot_name,
+    retryText,
+    url
+  );
 
   return {
     type: "flex",
@@ -329,9 +360,17 @@ export function buildFlexMessageEn(
 
 export function buildFlexMessageZh(
   data: InventJson,
+  retryText?: string,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("查看详情", "查看地图", data.spot_name, url);
+  const footer = buildFooter(
+    "查看详情",
+    "查看地图",
+    "查看其他候选",
+    data.spot_name,
+    retryText,
+    url
+  );
 
   return {
     type: "flex",

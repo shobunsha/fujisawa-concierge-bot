@@ -23,6 +23,7 @@ type GourmetSpot = {
 };
 
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
+const RETRY_PREFIXES = ["ja|more|", "en|more|", "zh|more|"] as const;
 const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
 const DIRECTION_KEYWORDS = {
   おしゃれ: ["カフェ", "スイーツ", "雑貨", "静か", "海", "景色", "デート"],
@@ -82,6 +83,16 @@ function stripLanguagePrefix(text: string): string {
     }
   }
   return text;
+}
+
+function extractRetryQuery(text: string): string | null {
+  for (const prefix of RETRY_PREFIXES) {
+    if (text.startsWith(prefix)) {
+      return text.slice(prefix.length).trim();
+    }
+  }
+
+  return null;
 }
 
 function detectLanguage(text: string): "ja" | "en" | "zh" {
@@ -1108,6 +1119,37 @@ async function handleEvent(event: webhook.Event) {
   const lang = detectLanguage(userText);
   const normalizedText = stripLanguagePrefix(userText);
   const historyScopeKey = getHistoryScopeKey(event);
+  const retryQuery = extractRetryQuery(userText);
+
+  if (retryQuery) {
+    const candidates = pickRecommendedSpots(retryQuery, historyScopeKey, 1);
+    const timeOfDay = getTimeOfDay(lang);
+    const weather = localizeWeather(getWeather(), lang);
+
+    const tourData = await generateTourStory(
+      retryQuery,
+      candidates,
+      lang,
+      timeOfDay,
+      weather
+    );
+
+    const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
+    const retryText = `${lang}|more|${retryQuery}`;
+
+    const flexMessage: messagingApi.Message =
+      lang === "en"
+        ? buildFlexMessageEn(tourData, retryText, selectedSpot?.url)
+        : lang === "zh"
+        ? buildFlexMessageZh(tourData, retryText, selectedSpot?.url)
+        : buildFlexMessage(tourData, retryText, selectedSpot?.url);
+
+    await lineClient.replyMessage({
+      replyToken: event.replyToken!,
+      messages: [flexMessage]
+    });
+    return;
+  }
 
   if (
     userText === "探す" ||
@@ -1173,13 +1215,14 @@ async function handleEvent(event: webhook.Event) {
     );
 
     const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
+    const retryText = `${lang}|more|${query}`;
 
     const flexMessage: messagingApi.Message =
       lang === "en"
-        ? buildFlexMessageEn(tourData, selectedSpot?.url)
+        ? buildFlexMessageEn(tourData, retryText, selectedSpot?.url)
         : lang === "zh"
-        ? buildFlexMessageZh(tourData, selectedSpot?.url)
-        : buildFlexMessage(tourData, selectedSpot?.url);
+        ? buildFlexMessageZh(tourData, retryText, selectedSpot?.url)
+        : buildFlexMessage(tourData, retryText, selectedSpot?.url);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
@@ -1206,13 +1249,14 @@ async function handleEvent(event: webhook.Event) {
   );
 
   const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
+  const retryText = `${lang}|more|${userText}`;
 
   const flexMessage: messagingApi.Message =
     lang === "en"
-      ? buildFlexMessageEn(tourData, selectedSpot?.url)
+      ? buildFlexMessageEn(tourData, retryText, selectedSpot?.url)
       : lang === "zh"
-      ? buildFlexMessageZh(tourData, selectedSpot?.url)
-      : buildFlexMessage(tourData, selectedSpot?.url);
+      ? buildFlexMessageZh(tourData, retryText, selectedSpot?.url)
+      : buildFlexMessage(tourData, retryText, selectedSpot?.url);
 
   await lineClient.replyMessage({
     replyToken: event.replyToken!,
