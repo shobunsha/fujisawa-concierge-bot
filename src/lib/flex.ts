@@ -58,17 +58,9 @@ function buildFooter(
 
   return {
     type: "box",
-    layout: "vertical",
-    spacing: "md",
-    contents: [
-      {
-        type: "box",
-        layout: "vertical",
-        spacing: "sm",
-        contents,
-        alignItems: "center"
-      }
-    ],
+    layout: "horizontal",
+    spacing: "sm",
+    contents,
     paddingAll: "16px"
   };
 }

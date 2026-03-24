@@ -24,9 +24,15 @@ type GourmetSpot = {
 
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
 const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
+const DIRECTION_KEYWORDS = {
+  おしゃれ: ["カフェ", "スイーツ", "雑貨", "静か", "海", "景色", "デート"],
+  ゆったり: ["静か", "のんびり", "散歩", "公園", "海", "カフェ", "休憩"],
+  がっつり: ["ランチ", "和食", "肉", "ラーメン", "中華", "定食", "名物"],
+  "雨の日": ["屋内", "駅近", "水族館", "買い物", "カフェ", "観光", "静か"]
+} as const;
 
 const recentSpotsByQuery = new Map<string, string[]>();
-const RANDOM_POOL_SIZE = 5;
+const RANDOM_POOL_SIZE = 8;
 const RECENT_HISTORY_LIMIT = 5;
 
 function rememberRecentSpots(queryKey: string, spots: GourmetSpot[]) {
@@ -787,6 +793,15 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
   }
 
   const text = userText.toLowerCase();
+  const searchableText = [
+    spot.name,
+    spot.area,
+    spot.category,
+    spot.desc,
+    ...spot.tags
+  ]
+    .join(" ")
+    .toLowerCase();
 
   if ((text.includes("ランチ") || text.includes("lunch") || text.includes("午餐")) && spot.tags.includes("ランチ")) score += 4;
   if ((text.includes("デート") || text.includes("date") || text.includes("约会")) && spot.tags.includes("デート")) score += 4;
@@ -798,6 +813,19 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
   if ((text.includes("おしゃれ") || text.includes("stylish") || text.includes("时尚")) && spot.tags.includes("おしゃれ")) score += 4;
   if ((text.includes("ゆったり") || text.includes("relaxing") || text.includes("悠闲")) && spot.tags.includes("ゆったり")) score += 4;
   if ((text.includes("がっつり") || text.includes("hearty") || text.includes("丰盛")) && spot.tags.includes("がっつり")) score += 4;
+
+  for (const [direction, relatedWords] of Object.entries(DIRECTION_KEYWORDS)) {
+    if (!userText.includes(direction)) continue;
+
+    if (spot.tags.includes(direction)) {
+      score += 6;
+    }
+
+    for (const relatedWord of relatedWords) {
+      if (spot.tags.some((tag) => tag.includes(relatedWord))) score += 2;
+      if (searchableText.includes(relatedWord.toLowerCase())) score += 1;
+    }
+  }
 
   return score;
 }
