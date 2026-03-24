@@ -34,7 +34,7 @@ export function buildFlexMessage(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("公式サイトを見る", url);
+  const footer = buildFooter("詳細を見る", url);
 
   return {
     type: "flex",
@@ -165,7 +165,7 @@ export function buildFlexMessageEn(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("Open website", url);
+  const footer = buildFooter("View details", url);
 
   return {
     type: "flex",
@@ -296,7 +296,7 @@ export function buildFlexMessageZh(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("查看官网", url);
+  const footer = buildFooter("查看详情", url);
 
   return {
     type: "flex",

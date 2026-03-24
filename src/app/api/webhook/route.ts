@@ -27,7 +27,7 @@ const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as cons
 
 const recentSpotsByQuery = new Map<string, string[]>();
 const RANDOM_POOL_SIZE = 5;
-const RECENT_HISTORY_LIMIT = 6;
+const RECENT_HISTORY_LIMIT = 5;
 
 function rememberRecentSpots(queryKey: string, spots: GourmetSpot[]) {
   const prev = recentSpotsByQuery.get(queryKey) ?? [];
@@ -45,8 +45,19 @@ function getRecentSpotNames(queryKey: string): string[] {
   return recentSpotsByQuery.get(queryKey) ?? [];
 }
 
-function makeQueryKey(userText: string): string {
-  return userText.trim().toLowerCase();
+function makeQueryKey(userText: string, scopeKey = "global"): string {
+  return `${scopeKey}:${userText.trim().toLowerCase()}`;
+}
+
+function getHistoryScopeKey(event: webhook.Event): string {
+  const source = event.source;
+
+  if (!source) return "global";
+  if ("userId" in source && source.userId) return `user:${source.userId}`;
+  if ("groupId" in source && source.groupId) return `group:${source.groupId}`;
+  if ("roomId" in source && source.roomId) return `room:${source.roomId}`;
+
+  return source.type;
 }
 
 function shuffleArray<T>(items: T[]): T[] {
@@ -791,9 +802,13 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
   return score;
 }
 
-function pickRecommendedSpots(userText: string, limit = 3): GourmetSpot[] {
+function pickRecommendedSpots(
+  userText: string,
+  scopeKey = "global",
+  limit = 1
+): GourmetSpot[] {
   const spots = gourmetData as GourmetSpot[];
-  const queryKey = makeQueryKey(userText);
+  const queryKey = makeQueryKey(userText, scopeKey);
   const recentNames = getRecentSpotNames(queryKey);
 
   const scored = spots
@@ -1064,6 +1079,7 @@ async function handleEvent(event: webhook.Event) {
 
   const lang = detectLanguage(userText);
   const normalizedText = stripLanguagePrefix(userText);
+  const historyScopeKey = getHistoryScopeKey(event);
 
   if (
     userText === "探す" ||
@@ -1116,7 +1132,7 @@ async function handleEvent(event: webhook.Event) {
   if (normalizedText.split("|").length === 3) {
     const cleanedText = stripLanguagePrefix(userText);
     const query = cleanedText.replaceAll("|", " ");
-    const candidates = pickRecommendedSpots(query, 3);
+    const candidates = pickRecommendedSpots(query, historyScopeKey, 1);
     const timeOfDay = getTimeOfDay(lang);
     const weather = localizeWeather(getWeather(), lang);
 
@@ -1149,7 +1165,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  const candidates = pickRecommendedSpots(userText, 3);
+  const candidates = pickRecommendedSpots(userText, historyScopeKey, 1);
   const timeOfDay = getTimeOfDay(lang);
   const weather = localizeWeather(getWeather(), lang);
 
