@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { validateSignature, webhook, type Message } from "@line/bot-sdk";
+import { messagingApi, validateSignature, webhook, type Message } from "@line/bot-sdk";
 import { lineClient } from "@/lib/line";
 import { openai } from "@/lib/openai";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
@@ -1130,7 +1130,7 @@ async function handleEvent(event: webhook.Event) {
 
     const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
 
-    const flexMessage =
+    const flexMessage: messagingApi.Message =
       lang === "en"
         ? buildFlexMessageEn(tourData, selectedSpot?.url)
         : lang === "zh"
@@ -1163,7 +1163,7 @@ async function handleEvent(event: webhook.Event) {
 
   const selectedSpot = findSelectedSpot(candidates, tourData.spot_name);
 
-  const flexMessage =
+  const flexMessage: messagingApi.Message =
     lang === "en"
       ? buildFlexMessageEn(tourData, selectedSpot?.url)
       : lang === "zh"

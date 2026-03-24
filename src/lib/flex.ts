@@ -1,4 +1,4 @@
-import type { Message } from "@line/bot-sdk";
+import { messagingApi } from "@line/bot-sdk";
 
 export type InventJson = {
   spot_name: string;
@@ -9,7 +9,7 @@ export type InventJson = {
   concierge_message: string;
 };
 
-function buildFooter(label: string, url?: string) {
+function buildFooter(label: string, url?: string): messagingApi.FlexBox | undefined {
   if (!url) return undefined;
 
   return {
@@ -30,7 +30,10 @@ function buildFooter(label: string, url?: string) {
   };
 }
 
-export function buildFlexMessage(data: InventJson, url?: string): Message {
+export function buildFlexMessage(
+  data: InventJson,
+  url?: string
+): messagingApi.FlexMessage {
   const footer = buildFooter("公式サイトを見る", url);
 
   return {
@@ -155,10 +158,13 @@ export function buildFlexMessage(data: InventJson, url?: string): Message {
       },
       footer
     }
-  } as Message;
+  } satisfies messagingApi.FlexMessage;
 }
 
-export function buildFlexMessageEn(data: InventJson, url?: string): Message {
+export function buildFlexMessageEn(
+  data: InventJson,
+  url?: string
+): messagingApi.FlexMessage {
   const footer = buildFooter("Open website", url);
 
   return {
@@ -283,10 +289,13 @@ export function buildFlexMessageEn(data: InventJson, url?: string): Message {
       },
       footer
     }
-  } as Message;
+  } satisfies messagingApi.FlexMessage;
 }
 
-export function buildFlexMessageZh(data: InventJson, url?: string): Message {
+export function buildFlexMessageZh(
+  data: InventJson,
+  url?: string
+): messagingApi.FlexMessage {
   const footer = buildFooter("查看官网", url);
 
   return {
@@ -411,5 +420,5 @@ export function buildFlexMessageZh(data: InventJson, url?: string): Message {
       },
       footer
     }
-  } as Message;
+  } satisfies messagingApi.FlexMessage;
 }
