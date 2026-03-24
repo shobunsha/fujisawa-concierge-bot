@@ -50,7 +50,7 @@ const DIRECTION_KEYWORDS = {
 } as const;
 
 const recentSpotsByQuery = new Map<string, string[]>();
-const RANDOM_POOL_SIZE = 8;
+const RANDOM_POOL_SIZE = 20;
 const RECENT_HISTORY_LIMIT = 5;
 
 function rememberRecentSpots(queryKey: string, spots: GourmetSpot[]) {
@@ -91,6 +91,31 @@ function shuffleArray<T>(items: T[]): T[] {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+function pickWeightedRandomItems<T>(items: T[], limit: number): T[] {
+  const pool = [...items];
+  const picked: T[] = [];
+
+  while (pool.length > 0 && picked.length < limit) {
+    const weights = pool.map((_, index) => 1 / Math.sqrt(index + 1));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    let threshold = Math.random() * totalWeight;
+
+    let selectedIndex = 0;
+    for (let i = 0; i < weights.length; i++) {
+      threshold -= weights[i];
+      if (threshold <= 0) {
+        selectedIndex = i;
+        break;
+      }
+    }
+
+    picked.push(pool[selectedIndex]);
+    pool.splice(selectedIndex, 1);
+  }
+
+  return picked;
 }
 
 function stripLanguagePrefix(text: string): string {
@@ -914,7 +939,7 @@ function pickRecommendedSpots(
     const nonRecent = topPool.filter((item) => !recentNames.includes(item.spot.name));
     const sourcePool = nonRecent.length >= limit ? nonRecent : topPool;
 
-    const picked = shuffleArray(sourcePool)
+    const picked = pickWeightedRandomItems(sourcePool, limit)
       .slice(0, limit)
       .map((item) => item.spot);
 
