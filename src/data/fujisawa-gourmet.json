@@ -4,6 +4,7 @@
     "area": "辻堂東海岸",
     "category": "飲食店",
     "desc": "創業から続く老舗とんかつ店。ボリューム満点。",
+    "url": "http://ozeki.la.coocan.jp/",
     "tags": [
       "ランチ",
       "がっつり",
@@ -22,6 +23,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "名物バラ丼とコシのあるうどんで満足感の高い人気店。",
+    "url": "http://www.satonoudon.com/",
     "tags": [
       "ランチ",
       "がっつり",
@@ -40,6 +42,7 @@
     "area": "片瀬海岸",
     "category": "飲食店",
     "desc": "水族館内のオーシャンカフェ。海を感じながらゆったり。",
+    "url": "http://www.enosui.com/shop_oceancafe.php",
     "tags": [
       "カフェ",
       "デート",
@@ -58,6 +61,7 @@
     "area": "辻堂元町",
     "category": "買い物",
     "desc": "本と雑貨に囲まれて静かに過ごせる大人向けの空間。",
+    "url": "https://store.tsite.jp/shonan/",
     "tags": [
       "カフェ",
       "おしゃれ",
@@ -78,6 +82,7 @@
     "area": "辻堂",
     "category": "買い物",
     "desc": "駅直結の大型施設。ランチも買い物も一度に楽しめる。",
+    "url": "https://shonan.terracemall.com/",
     "tags": [
       "買い物",
       "ランチ",
@@ -98,6 +103,7 @@
     "area": "湘南エリア",
     "category": "飲食店",
     "desc": "ふわふわ食感のパンケーキでゆったり過ごせる。",
+    "url": "https://shonan-pancake.jp/",
     "tags": [
       "カフェ",
       "スイーツ",
@@ -115,6 +121,7 @@
     "area": "片瀬海岸",
     "category": "観光",
     "desc": "相模湾の生き物に出会える。イルカショーやクラゲが人気。",
+    "url": "https://www.enosui.com/",
     "tags": [
       "観光",
       "子連れ",
@@ -134,6 +141,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "海と食べ歩きと景色をまとめて楽しめる湘南の王道。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "観光",
       "デート",
@@ -154,6 +162,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "展望灯台。湘南の海を一望でき、夜の夜景も圧巻。",
+    "url": "https://enoshima-seacandle.com/",
     "tags": [
       "観光",
       "デート",
@@ -172,6 +181,7 @@
     "area": "片瀬海岸",
     "category": "観光",
     "desc": "気軽に海を感じられて散歩にもぴったりなビーチ。",
+    "url": "https://enoshimawest-kugenuma.com/",
     "tags": [
       "観光",
       "散歩",
@@ -190,6 +200,7 @@
     "area": "辻堂",
     "category": "公園",
     "desc": "ジャンボプールや交通公園があり家族連れに人気。",
+    "url": "http://www.kanagawa-park.or.jp/tujidou/",
     "tags": [
       "公園",
       "子連れ",
@@ -208,6 +219,7 @@
     "area": "辻堂",
     "category": "公園",
     "desc": "都市緑化植物園。四季の花々と静かな散歩道。",
+    "url": "https://nagakubokouen.jp/",
     "tags": [
       "公園",
       "静か",
@@ -225,6 +237,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "時宗総本山。藤沢宿の歴史を感じる静かな境内。",
+    "url": "https://yugyoji.or.jp/",
     "tags": [
       "観光",
       "歴史",
@@ -243,6 +256,7 @@
     "area": "鵠沼海岸",
     "category": "公園",
     "desc": "海沿いの開放感溢れる公園。サーフビレッジ併設。",
+    "url": "https://www.s-n-p.jp/",
     "tags": [
       "公園",
       "散歩",
@@ -260,6 +274,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "8HOTEL併設。自家焙煎コーヒーとバーガー。",
+    "url": "https://8lounge.owst.jp/",
     "tags": [
       "カフェ",
       "おしゃれ",
@@ -278,6 +293,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "コスパ抜群の焼肉。活気ある店内で友人と。",
+    "url": "http://www.zanmai1129.com/",
     "tags": [
       "夜",
       "がっつり",
@@ -295,6 +311,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "濃厚な醤油豚骨の家系ラーメン。藤沢の人気店。",
+    "url": "https://www.matsuichiya.com/",
     "tags": [
       "ランチ",
       "がっつり",
@@ -312,6 +329,7 @@
     "area": "藤沢〜江の島",
     "category": "観光",
     "desc": "電車に乗りながらのんびり観光を楽しむ王道コース。",
+    "url": "https://www.enoden.co.jp/",
     "tags": [
       "観光",
       "散歩",
@@ -329,6 +347,7 @@
     "area": "鵠沼",
     "category": "観光",
     "desc": "日本のサーフィン発祥の地。夕景が美しいエリア。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "観光",
       "散歩",
@@ -345,6 +364,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "工場跡を改装したイタリアン。ブルワリー直営。",
+    "url": "https://www.kumazawa.jp/",
     "tags": [
       "ランチ",
       "おしゃれ",
@@ -363,6 +383,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "国産黒毛和牛100%使用。満足度の高い専門店。",
+    "url": "https://fujisawabistrohamburger.foodre.jp/",
     "tags": [
       "ランチ",
       "がっつり",
@@ -380,6 +401,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "落ち着いた空間。窓から江ノ電を眺められる。",
+    "url": "https://cafepensee.wixsite.com/pensee",
     "tags": [
       "カフェ",
       "静か",
@@ -398,6 +420,7 @@
     "area": "鵠沼海岸",
     "category": "公園",
     "desc": "鵠沼海浜公園が刷新。アーバンスポーツの聖地。",
+    "url": "https://enoshimawest-kugenuma.com/",
     "tags": [
       "公園",
       "外遊び",
@@ -415,6 +438,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "波の侵食でできた幻想的な洞窟。ロウソクで探検。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "観光",
       "デート",
@@ -432,6 +456,7 @@
     "area": "辻堂",
     "category": "買い物",
     "desc": "家族で使いやすく、テラスモールに並ぶ人気モール。",
+    "url": "http://www.shonan-fill.com/",
     "tags": [
       "買い物",
       "ランチ",
@@ -449,6 +474,7 @@
     "area": "藤沢",
     "category": "買い物",
     "desc": "若者向けショップが充実した駅近ビル。",
+    "url": "https://www.opa-club.com/fujisawa",
     "tags": [
       "買い物",
       "デート",
@@ -465,6 +491,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "1954年創業。秘伝スパイスが人気の老舗。",
+    "url": "http://www.fukido.com/",
     "tags": [
       "ランチ",
       "がっつり",
@@ -482,6 +509,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年開店。相模湾の地アジ専門店。",
+    "url": "https://instagram.com/arata_ajifry",
     "tags": [
       "ランチ",
       "魚",
@@ -500,6 +528,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年開店。古民家で味わう発酵和食と甘味。",
+    "url": "https://instagram.com/fujisawa_yaichi",
     "tags": [
       "カフェ",
       "和食",
@@ -518,6 +547,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年開店。和を織り交ぜたクラシックイタリアン。",
+    "url": "https://toki-fujisawa.jp/",
     "tags": [
       "イタリアン",
       "ディナー",
@@ -535,6 +565,7 @@
     "area": "片瀬海岸",
     "category": "飲食店",
     "desc": "2025年開店。クラシックな洋菓子店。",
+    "url": "",
     "tags": [
       "スイーツ",
       "最新",
@@ -552,6 +583,7 @@
     "area": "鵠沼海岸",
     "category": "飲食店",
     "desc": "150通りの組み合わせが可能なパスタ専門店。",
+    "url": "https://tune-up.biz/ww-kugenuma/",
     "tags": [
       "イタリアン",
       "ランチ",
@@ -570,6 +602,7 @@
     "area": "江の島",
     "category": "宿泊",
     "desc": "国登録有形文化財の風呂を持つ歴史的旅館。",
+    "url": "http://www.iwamotoro.co.jp",
     "tags": [
       "旅館",
       "歴史",
@@ -588,6 +621,7 @@
     "area": "江の島",
     "category": "宿泊",
     "desc": "島内唯一の洋室。スパ施設と連携したリゾート。",
+    "url": "https://enoshima-island-spa.com/",
     "tags": [
       "ホテル",
       "温泉",
@@ -605,6 +639,7 @@
     "area": "江の島",
     "category": "宿泊",
     "desc": "創業350年の老舗。江島神社参道に位置。",
+    "url": "http://www.ebisuyaryokan.jp",
     "tags": [
       "旅館",
       "歴史",
@@ -623,6 +658,7 @@
     "area": "江の島",
     "category": "宿泊",
     "desc": "アットホームな民宿。江ノ島海産物定食が評判。",
+    "url": "https://enoshima-minshuku-ogawatei.crayonsite.net",
     "tags": [
       "民宿",
       "海鮮",
@@ -640,6 +676,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "100平米の一棟貸切スタイル。最大8名まで。",
+    "url": "https://www.fujisawa-kanko.jp/stay/36.html",
     "tags": [
       "貸切",
       "グループ",
@@ -657,6 +694,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "交流重視。北欧風の清潔なドミトリー。",
+    "url": "http://enoshimaguesthouse.wixsite.com/home",
     "tags": [
       "ゲストハウス",
       "安い",
@@ -674,6 +712,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "海を見渡せる絶好のロケーション。",
+    "url": "http://www.kkrenosima.com/",
     "tags": [
       "ホテル",
       "海が見える",
@@ -692,6 +731,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "江の島入口の老舗。新鮮な海の幸が自慢。",
+    "url": "http://www.kinokuniyaryokan.com",
     "tags": [
       "旅館",
       "老舗",
@@ -710,6 +750,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "素足でくつろげる新しいスタイルのホテル。",
+    "url": "http://hotelsaika.com",
     "tags": [
       "ホテル",
       "便利",
@@ -727,6 +768,7 @@
     "area": "鵠沼海岸",
     "category": "宿泊",
     "desc": "癒しと健康をテーマにした高級ホテル。",
+    "url": "http://www.breath-hotel.com",
     "tags": [
       "ホテル",
       "高級",
@@ -744,6 +786,7 @@
     "area": "片瀬海岸",
     "category": "宿泊",
     "desc": "海辺の絶好ロケーション。潮騒を感じる滞在。",
+    "url": "http://hotelshiosai.com",
     "tags": [
       "ホテル",
       "海沿い",
@@ -761,6 +804,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "ヨーロッパ風内装。ペット同伴プランあり。",
+    "url": "https://www.crystal-hotel.jp",
     "tags": [
       "ホテル",
       "おしゃれ",
@@ -779,6 +823,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "男女別大浴場完備。繁華街にあり利便性抜群。",
+    "url": "https://www.hokke.co.jp/shonan-fujisawa/",
     "tags": [
       "ホテル",
       "大浴場",
@@ -797,6 +842,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "天然温泉「伝馬の湯」を完備。朝食無料。",
+    "url": "https://www.superhotel.co.jp/s_hotels/fujisawa/",
     "tags": [
       "ホテル",
       "温泉",
@@ -814,6 +860,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "ヴァケーションホテル。現代的で洗練された空間。",
+    "url": "https://www.courthotels.co.jp/fujisawa/",
     "tags": [
       "ホテル",
       "おしゃれ",
@@ -831,6 +878,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "藤沢駅徒歩2分。機能的なビジネス拠点。",
+    "url": "https://www.hotelwing.co.jp/shonan-fujisawa/",
     "tags": [
       "ホテル",
       "駅近",
@@ -848,6 +896,7 @@
     "area": "藤沢",
     "category": "宿泊",
     "desc": "上質なおもてなし。駅近の静かな拠点。",
+    "url": "https://www.almont.jp/shonan/",
     "tags": [
       "ホテル",
       "便利",
@@ -865,6 +914,7 @@
     "area": "湘南台",
     "category": "宿泊",
     "desc": "3路線利用可能な湘南台駅至近の最新ホテル。",
+    "url": "https://sotetsu-hotels.com/fresa-inn/shonandai/",
     "tags": [
       "ホテル",
       "駅近",
@@ -882,6 +932,7 @@
     "area": "湘南台",
     "category": "宿泊",
     "desc": "ビジネスや大学キャンパス訪問に最適。",
+    "url": "http://www.shonandai-dai1hotel.com",
     "tags": [
       "ホテル",
       "駅近",
@@ -899,6 +950,7 @@
     "area": "腰越",
     "category": "宿泊",
     "desc": "全16室のスモールラグジュアリーホテル。",
+    "url": "https://hotelao.jp/",
     "tags": [
       "ホテル",
       "高級",
@@ -916,6 +968,7 @@
     "area": "腰越",
     "category": "宿泊",
     "desc": "老舗食堂が営む。地魚料理が自慢。",
+    "url": "http://www.kakiya.co.jp/",
     "tags": [
       "旅館",
       "海鮮",
@@ -934,6 +987,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "「丸焼きたこせんべい」の有名行列店。",
+    "url": "http://www.murasaki-moto.com/",
     "tags": [
       "食べ歩き",
       "名物",
@@ -951,6 +1005,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "江の島もなかや女夫まんじゅうの老舗。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "和菓子",
       "スイーツ",
@@ -969,6 +1024,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "新鮮なしらす丼やかき揚げ丼が名物。",
+    "url": "http://tobiccho.com/",
     "tags": [
       "海鮮",
       "ランチ",
@@ -986,6 +1042,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "店頭での磯焼き。新鮮な海の幸を堪能。",
+    "url": "http://www.enoshima-kaisaku.jp/",
     "tags": [
       "海鮮",
       "磯焼き",
@@ -1003,6 +1060,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "日本初のフレンチトースト専門店。絶景テラス。",
+    "url": "https://loncafe.jp/",
     "tags": [
       "カフェ",
       "スイーツ",
@@ -1020,6 +1078,7 @@
     "area": "片瀬海岸",
     "category": "飲食店",
     "desc": "麦こがしを使った香ばしいプリン。",
+    "url": "https://www.enoshima-pudding.com/",
     "tags": [
       "スイーツ",
       "プリン",
@@ -1037,6 +1096,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "デニムカラーの肉まんやソフトが話題。",
+    "url": "https://www.facebook.com/shonandenimstreet/",
     "tags": [
       "スイーツ",
       "軽食",
@@ -1054,6 +1114,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "奥津宮境内の甘味処。白玉スイーツで一息。",
+    "url": "https://instagram.com/enoshima_aburaya",
     "tags": [
       "和菓子",
       "カフェ",
@@ -1071,6 +1132,7 @@
     "area": "片瀬海岸",
     "category": "飲食店",
     "desc": "本場ハワイのパンケーキ。海辺の開放感。",
+    "url": "https://www.eggsnthingsjapan.com/fujisawa/",
     "tags": [
       "カフェ",
       "パンケーキ",
@@ -1088,6 +1150,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "江ノ電を眺めながら絶品干物定食。",
+    "url": "https://yoridocoro.com/",
     "tags": [
       "和食",
       "江ノ電",
@@ -1105,6 +1168,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "安くてボリューム満点の中華。刀削麺が人気。",
+    "url": "https://manpukurou-shinkan.owst.jp/",
     "tags": [
       "中華",
       "がっつり",
@@ -1122,6 +1186,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "木のぬくもりがある無国籍創作料理カフェ。",
+    "url": "http://freeculture-fujisawa.jp/",
     "tags": [
       "多国籍",
       "カフェ",
@@ -1139,6 +1204,7 @@
     "area": "亀井野",
     "category": "飲食店",
     "desc": "2025年開店。アルゼンチンのパイ専門店。",
+    "url": "https://instagram.com/gaku_no_toboe/",
     "tags": [
       "カフェ",
       "最新",
@@ -1156,6 +1222,7 @@
     "area": "遠藤",
     "category": "飲食店",
     "desc": "2025年開店。モチモチ皮が人気の餃子専門店。",
+    "url": "https://white-gyouza.co.jp/",
     "tags": [
       "餃子",
       "がっつり",
@@ -1173,6 +1240,7 @@
     "area": "鵠沼海岸",
     "category": "飲食店",
     "desc": "2025年開店。HUG-RIDE PARK内の海鮮食堂。",
+    "url": "https://instagram.com/shonan_maguro",
     "tags": [
       "海鮮",
       "最新",
@@ -1190,6 +1258,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年開店。本格フレンチを気軽に。",
+    "url": "https://matsudaya-bistro-sante.com",
     "tags": [
       "ビストロ",
       "フレンチ",
@@ -1207,6 +1276,7 @@
     "area": "湘南台",
     "category": "観光",
     "desc": "車づくりを疑似体験できる体験型施設。",
+    "url": "https://www.isuzu-plaza.jp/",
     "tags": [
       "体験",
       "車",
@@ -1224,6 +1294,7 @@
     "area": "辻堂",
     "category": "観光",
     "desc": "最新ロボットと触れ合える無料体験スポット。",
+    "url": "https://roboterrace.jp/",
     "tags": [
       "ロボット",
       "体験",
@@ -1241,6 +1312,7 @@
     "area": "辻堂",
     "category": "観光",
     "desc": "藤沢ゆかりの浮世絵を展示。入館無料。",
+    "url": "https://fujisawa-ukiyoekan.net/",
     "tags": [
       "歴史",
       "アート",
@@ -1258,6 +1330,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "藤沢宿の歴史を学ぶ拠点。無料休憩所あり。",
+    "url": "https://fujisawashuku-kouryukan.com/",
     "tags": [
       "歴史",
       "無料",
@@ -1275,6 +1348,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "日本三大弁財天の一つ。良縁のパワースポット。",
+    "url": "http://enoshimajinja.or.jp/",
     "tags": [
       "神社",
       "パワースポット",
@@ -1292,6 +1366,7 @@
     "area": "片瀬",
     "category": "観光",
     "desc": "日蓮宗本山。美しい五重塔を持つ名刹。",
+    "url": "https://ryuukoji.com/",
     "tags": [
       "寺院",
       "歴史",
@@ -1309,6 +1384,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "源義経公を祀る。グラスファイバー製鳥居。",
+    "url": "http://www.shirahata-jinja.jp/",
     "tags": [
       "神社",
       "歴史",
@@ -1326,6 +1402,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "相模国甘郷総社。人形山車が有名。",
+    "url": "http://www.koutaijinguu.com/",
     "tags": [
       "神社",
       "歴史",
@@ -1343,6 +1420,7 @@
     "area": "辻堂",
     "category": "観光",
     "desc": "重要文化財の薬師如来坐像を安置。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "寺院",
       "歴史",
@@ -1360,6 +1438,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "樹林が市の天然記念物。静かな古刹。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "寺院",
       "歴史",
@@ -1376,6 +1455,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "玉縄城の砦跡。歴史ロマンを感じる。",
+    "url": "https://nidenji.or.jp/",
     "tags": [
       "寺院",
       "歴史",
@@ -1393,6 +1473,7 @@
     "area": "打戻",
     "category": "観光",
     "desc": "市内最古。縁結びや学業祈願。",
+    "url": "https://utsumochi-jinja.com/",
     "tags": [
       "神社",
       "パワースポット",
@@ -1410,6 +1491,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "海食台が広がる。夕日の絶景スポット。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "景色",
       "自然",
@@ -1427,6 +1509,7 @@
     "area": "大庭",
     "category": "公園",
     "desc": "北条氏の城跡。芝生広場と桜が美しい。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "歴史",
@@ -1444,6 +1527,7 @@
     "area": "遠藤",
     "category": "公園",
     "desc": "川沿いの親水エリア。藤棚や散策路。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "自然",
@@ -1461,6 +1545,7 @@
     "area": "辻堂",
     "category": "公園",
     "desc": "テラスモール隣接。開放的な芝生広場。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "駅近",
@@ -1478,6 +1563,7 @@
     "area": "藤沢",
     "category": "公園",
     "desc": "古民家と里山の風景。ハイキングに最適。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "古民家",
@@ -1495,6 +1581,7 @@
     "area": "湘南台",
     "category": "公園",
     "desc": "巨大地球儀が目印。駅近で遊具充実。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "駅近",
@@ -1512,6 +1599,7 @@
     "area": "湘南台",
     "category": "公園",
     "desc": "広大な水辺公園。生物観察が可能。",
+    "url": "http://www.kanagawa-park.or.jp/sakaigawa/",
     "tags": [
       "公園",
       "自然",
@@ -1529,6 +1617,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "江の島入口と岩屋を結ぶ遊覧船。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "観光",
       "船",
@@ -1546,6 +1635,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "市役所最上階。無料で富士山を一望。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "観光",
       "無料",
@@ -1563,6 +1653,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "複合施設Fプレイス最上階の天空カフェ。",
+    "url": "https://3plus3cafe.com/",
     "tags": [
       "カフェ",
       "ランチ",
@@ -1580,6 +1671,7 @@
     "area": "江の島",
     "category": "観光",
     "desc": "1964年五輪記念。江の島入口のシンボル。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "歴史",
       "シンボル",
@@ -1597,6 +1689,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "創業明治。パリパリのアイス最中が人気。",
+    "url": "https://instagram.com/inouesouhonpo",
     "tags": [
       "和菓子",
       "食べ歩き",
@@ -1614,6 +1707,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "元祖海苔羊羹の老舗。磯の香りが特徴。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "和菓子",
       "お土産",
@@ -1631,6 +1725,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "奥津宮前の甘味処。落ち着いた和空間。",
+    "url": "https://instagram.com/enoshima_aburaya",
     "tags": [
       "和菓子",
       "カフェ",
@@ -1648,6 +1743,7 @@
     "area": "藤沢",
     "category": "買い物",
     "desc": "地元感溢れる商店街。散策に最適。",
+    "url": "https://fujisawa-shouren.or.jp/",
     "tags": [
       "買い物",
       "散歩",
@@ -1665,6 +1761,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年オープン。新鮮地アジ専門店。",
+    "url": "https://instagram.com/arata_ajifry",
     "tags": [
       "ランチ",
       "魚",
@@ -1683,6 +1780,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "江の島食べ歩き。串もちが評判。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "食べ歩き",
       "和菓子",
@@ -1700,6 +1798,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "日本初のフレンチトースト専門店。",
+    "url": "https://loncafe.jp/",
     "tags": [
       "カフェ",
       "スイーツ",
@@ -1717,6 +1816,7 @@
     "area": "江の島",
     "category": "飲食店",
     "desc": "絶景と美味しい干物ランチ。",
+    "url": "https://yoridocoro.com/",
     "tags": [
       "和食",
       "江ノ電",
@@ -1734,6 +1834,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "本格中華。リーズナブルでがっつり。",
+    "url": "https://manpukurou-shinkan.owst.jp/",
     "tags": [
       "中華",
       "がっつり",
@@ -1751,6 +1852,7 @@
     "area": "片瀬海岸",
     "category": "飲食店",
     "desc": "2025年開店。海苔巻き専門テイクアウト。",
+    "url": "",
     "tags": [
       "寿司",
       "最新",
@@ -1768,6 +1870,7 @@
     "area": "藤沢",
     "category": "飲食店",
     "desc": "2025年開店。鎌倉野菜と酒の大人の隠れ家。",
+    "url": "https://instagram.com/matudayafujisawa",
     "tags": [
       "和食",
       "野菜",
@@ -1786,6 +1889,7 @@
     "area": "辻堂",
     "category": "飲食店",
     "desc": "2025年開店。職人技を気軽に立ち食い。",
+    "url": "",
     "tags": [
       "寿司",
       "最新",
@@ -1803,6 +1907,7 @@
     "area": "藤沢",
     "category": "観光",
     "desc": "海を望む爽快なコース。",
+    "url": "https://www.fujisawa-kanko.jp/",
     "tags": [
       "観光",
       "自転車",
@@ -1820,6 +1925,7 @@
     "area": "湘南台",
     "category": "公園",
     "desc": "A池。自然豊かな観察スポット。",
+    "url": "https://www.city.fujisawa.kanagawa.jp/",
     "tags": [
       "公園",
       "自然",

@@ -42,6 +42,15 @@ function splitMultiValue(value) {
     .filter(Boolean);
 }
 
+function normalizeUrl(value) {
+  const url = String(value || "").trim();
+
+  if (!url) return "";
+  if (!/^https?:\/\//i.test(url)) return "";
+
+  return url;
+}
+
 async function main() {
   const csvText = await fs.readFile(inputPath, "utf-8");
 
@@ -65,6 +74,7 @@ async function main() {
       area: row.area?.trim() || "",
       category: row.category?.trim() || "",
       desc: row.desc?.trim() || "",
+      url: normalizeUrl(row.url),
       tags: splitMultiValue(row.tags),
       scene: splitMultiValue(row.scene),
       status: row.status?.trim() || "下書き",
