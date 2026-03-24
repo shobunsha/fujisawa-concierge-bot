@@ -9,24 +9,67 @@ export type InventJson = {
   concierge_message: string;
 };
 
-function buildFooter(label: string, url?: string): messagingApi.FlexBox | undefined {
-  if (!url) return undefined;
+function buildGoogleMapsUrl(query?: string): string | undefined {
+  const normalizedQuery = query?.trim();
+  if (!normalizedQuery) return undefined;
+
+  return `https://www.google.com/maps?q=${encodeURIComponent(normalizedQuery)}`;
+}
+
+function buildFooter(
+  detailLabel: string,
+  mapLabel: string,
+  spotName: string,
+  url?: string
+): messagingApi.FlexBox | undefined {
+  const mapUrl = buildGoogleMapsUrl(spotName);
+
+  if (!url && !mapUrl) return undefined;
+
+  const contents: messagingApi.FlexButton[] = [];
+
+  if (url) {
+    contents.push({
+      type: "button",
+      style: "primary",
+      height: "sm",
+      color: "#1D4ED8",
+      action: {
+        type: "uri",
+        label: detailLabel,
+        uri: url
+      }
+    });
+  }
+
+  if (mapUrl) {
+    contents.push({
+      type: "button",
+      style: url ? "secondary" : "primary",
+      height: "sm",
+      color: url ? undefined : "#1D4ED8",
+      action: {
+        type: "uri",
+        label: mapLabel,
+        uri: mapUrl
+      }
+    });
+  }
 
   return {
     type: "box",
     layout: "vertical",
-    spacing: "sm",
+    spacing: "md",
     contents: [
       {
-        type: "button",
-        style: "link",
-        action: {
-          type: "uri",
-          label,
-          uri: url
-        }
+        type: "box",
+        layout: "vertical",
+        spacing: "sm",
+        contents,
+        alignItems: "center"
       }
-    ]
+    ],
+    paddingAll: "16px"
   };
 }
 
@@ -34,7 +77,7 @@ export function buildFlexMessage(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("詳細を見る", url);
+  const footer = buildFooter("詳細を見る", "地図を見る", data.spot_name, url);
 
   return {
     type: "flex",
@@ -165,7 +208,7 @@ export function buildFlexMessageEn(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("View details", url);
+  const footer = buildFooter("View details", "View map", data.spot_name, url);
 
   return {
     type: "flex",
@@ -296,7 +339,7 @@ export function buildFlexMessageZh(
   data: InventJson,
   url?: string
 ): messagingApi.FlexMessage {
-  const footer = buildFooter("查看详情", url);
+  const footer = buildFooter("查看详情", "查看地图", data.spot_name, url);
 
   return {
     type: "flex",
