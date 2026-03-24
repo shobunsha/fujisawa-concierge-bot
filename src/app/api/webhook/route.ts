@@ -24,7 +24,24 @@ type GourmetSpot = {
 
 const LANGUAGE_PREFIXES = ["ja|", "en|", "zh|"] as const;
 const RETRY_PREFIXES = ["ja|more|", "en|more|", "zh|more|"] as const;
-const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光", "買い物"] as const;
+const AREA_KEYS = [
+  "藤沢駅周辺",
+  "江の島・片瀬",
+  "辻堂",
+  "湘南台",
+  "鵠沼・本鵠沼",
+  "エリア指定なし"
+] as const;
+const ROOT_MENU_KEYS = ["ランチ", "カフェ", "観光"] as const;
+const AREA_MATCH_MAP = {
+  "藤沢駅周辺": ["藤沢", "南藤沢"],
+  "江の島・片瀬": ["江の島", "片瀬", "片瀬江ノ島"],
+  辻堂: ["辻堂"],
+  湘南台: ["湘南台"],
+  "鵠沼・本鵠沼": ["鵠沼", "本鵠沼"],
+  "エリア指定なし": []
+} as const;
+type AreaKey = (typeof AREA_KEYS)[number];
 const DIRECTION_KEYWORDS = {
   おしゃれ: ["カフェ", "スイーツ", "雑貨", "静か", "海", "景色", "デート"],
   ゆったり: ["静か", "のんびり", "散歩", "公園", "海", "カフェ", "休憩"],
@@ -104,9 +121,14 @@ function detectLanguage(text: string): "ja" | "en" | "zh" {
 
   if (
     (ROOT_MENU_KEYS as readonly string[]).includes(normalizedText) ||
+    (AREA_KEYS as readonly string[]).includes(normalizedText) ||
     normalizedText
       .split("|")
-      .some((part) => (ROOT_MENU_KEYS as readonly string[]).includes(part))
+      .some(
+        (part) =>
+          (ROOT_MENU_KEYS as readonly string[]).includes(part) ||
+          (AREA_KEYS as readonly string[]).includes(part)
+      )
   ) {
     return "ja";
   }
@@ -217,28 +239,38 @@ function buildStartMessage() {
           },
           {
             type: "text",
-            text: "何をしたいですか？",
+            text: "まずはエリアを選んでください",
             size: "md"
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🍽 ランチ", text: "ja|ランチ" }
+            action: { type: "message", label: "📍 藤沢駅周辺", text: "ja|藤沢駅周辺" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "☕ カフェ", text: "ja|カフェ" }
+            action: { type: "message", label: "🌊 江の島・片瀬", text: "ja|江の島・片瀬" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🎡 観光", text: "ja|観光" }
+            action: { type: "message", label: "🏖 辻堂", text: "ja|辻堂" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🛍 買い物", text: "ja|買い物" }
+            action: { type: "message", label: "🚉 湘南台", text: "ja|湘南台" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🏡 鵠沼・本鵠沼", text: "ja|鵠沼・本鵠沼" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🗺 エリア指定なし", text: "ja|エリア指定なし" }
           }
         ]
       }
@@ -265,28 +297,38 @@ function buildStartMessageEn() {
           },
           {
             type: "text",
-            text: "What would you like to do?",
+            text: "Choose an area first",
             size: "md"
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🍽 Lunch", text: "en|ランチ" }
+            action: { type: "message", label: "📍 Fujisawa Station", text: "en|藤沢駅周辺" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "☕ Cafe", text: "en|カフェ" }
+            action: { type: "message", label: "🌊 Enoshima / Katase", text: "en|江の島・片瀬" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🎡 Sightseeing", text: "en|観光" }
+            action: { type: "message", label: "🏖 Tsujido", text: "en|辻堂" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🛍 Shopping", text: "en|買い物" }
+            action: { type: "message", label: "🚉 Shonandai", text: "en|湘南台" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🏡 Kugenuma / Hongenuma", text: "en|鵠沼・本鵠沼" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🗺 Any area", text: "en|エリア指定なし" }
           }
         ]
       }
@@ -313,28 +355,38 @@ function buildStartMessageZh() {
           },
           {
             type: "text",
-            text: "您想做什么？",
+            text: "请先选择区域",
             size: "md"
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🍽 午餐", text: "zh|ランチ" }
+            action: { type: "message", label: "📍 藤泽站周边", text: "zh|藤沢駅周辺" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "☕ 咖啡", text: "zh|カフェ" }
+            action: { type: "message", label: "🌊 江之岛・片濑", text: "zh|江の島・片瀬" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🎡 观光", text: "zh|観光" }
+            action: { type: "message", label: "🏖 辻堂", text: "zh|辻堂" }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "🛍 购物", text: "zh|買い物" }
+            action: { type: "message", label: "🚉 湘南台", text: "zh|湘南台" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🏡 鹄沼・本鹄沼", text: "zh|鵠沼・本鵠沼" }
+          },
+          {
+            type: "button",
+            style: "secondary",
+            action: { type: "message", label: "🗺 不指定区域", text: "zh|エリア指定なし" }
           }
         ]
       }
@@ -345,7 +397,7 @@ function buildStartMessageZh() {
 function buildCompanionMessage(baseText: string) {
   return {
     type: "flex",
-    altText: "誰と行きますか？",
+    altText: "ジャンルを選んでください",
     contents: {
       type: "bubble",
       body: {
@@ -355,13 +407,13 @@ function buildCompanionMessage(baseText: string) {
         contents: [
           {
             type: "text",
-            text: "誰と行きますか？",
+            text: "ジャンルを選んでください",
             size: "xl",
             weight: "bold"
           },
           {
             type: "text",
-            text: "いっしょに行く相手を選んでください",
+            text: "行きたいジャンルを選んでください",
             size: "sm",
             color: "#666666",
             wrap: true
@@ -369,22 +421,17 @@ function buildCompanionMessage(baseText: string) {
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👤 ひとり", text: `${baseText}|ひとり` }
+            action: { type: "message", label: "🍽 ランチ", text: `${baseText}|ランチ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "💑 デート", text: `${baseText}|デート` }
+            action: { type: "message", label: "☕ カフェ", text: `${baseText}|カフェ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👨‍👩‍👧 子連れ", text: `${baseText}|子連れ` }
-          },
-          {
-            type: "button",
-            style: "secondary",
-            action: { type: "message", label: "👥 友人", text: `${baseText}|友人` }
+            action: { type: "message", label: "🎡 観光", text: `${baseText}|観光` }
           }
         ]
       }
@@ -395,7 +442,7 @@ function buildCompanionMessage(baseText: string) {
 function buildCompanionMessageEn(baseText: string) {
   return {
     type: "flex",
-    altText: "Who are you going with?",
+    altText: "Choose a category",
     contents: {
       type: "bubble",
       body: {
@@ -405,13 +452,13 @@ function buildCompanionMessageEn(baseText: string) {
         contents: [
           {
             type: "text",
-            text: "Who are you going with?",
+            text: "Choose a category",
             size: "xl",
             weight: "bold"
           },
           {
             type: "text",
-            text: "Please choose who you are going with",
+            text: "Please choose what kind of place you want",
             size: "sm",
             color: "#666666",
             wrap: true
@@ -419,22 +466,17 @@ function buildCompanionMessageEn(baseText: string) {
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👤 Solo", text: `${baseText}|ひとり` }
+            action: { type: "message", label: "🍽 Lunch", text: `${baseText}|ランチ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "💑 Date", text: `${baseText}|デート` }
+            action: { type: "message", label: "☕ Cafe", text: `${baseText}|カフェ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👨‍👩‍👧 Family", text: `${baseText}|子連れ` }
-          },
-          {
-            type: "button",
-            style: "secondary",
-            action: { type: "message", label: "👥 Friends", text: `${baseText}|友人` }
+            action: { type: "message", label: "🎡 Sightseeing", text: `${baseText}|観光` }
           }
         ]
       }
@@ -445,7 +487,7 @@ function buildCompanionMessageEn(baseText: string) {
 function buildCompanionMessageZh(baseText: string) {
   return {
     type: "flex",
-    altText: "和谁一起去？",
+    altText: "请选择类型",
     contents: {
       type: "bubble",
       body: {
@@ -455,13 +497,13 @@ function buildCompanionMessageZh(baseText: string) {
         contents: [
           {
             type: "text",
-            text: "和谁一起去？",
+            text: "请选择类型",
             size: "xl",
             weight: "bold"
           },
           {
             type: "text",
-            text: "请选择同行对象",
+            text: "请选择您想去的类型",
             size: "sm",
             color: "#666666",
             wrap: true
@@ -469,22 +511,17 @@ function buildCompanionMessageZh(baseText: string) {
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👤 一个人", text: `${baseText}|ひとり` }
+            action: { type: "message", label: "🍽 午餐", text: `${baseText}|ランチ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "💑 约会", text: `${baseText}|デート` }
+            action: { type: "message", label: "☕ 咖啡", text: `${baseText}|カフェ` }
           },
           {
             type: "button",
             style: "primary",
-            action: { type: "message", label: "👨‍👩‍👧 亲子", text: `${baseText}|子連れ` }
-          },
-          {
-            type: "button",
-            style: "secondary",
-            action: { type: "message", label: "👥 朋友", text: `${baseText}|友人` }
+            action: { type: "message", label: "🎡 观光", text: `${baseText}|観光` }
           }
         ]
       }
@@ -838,6 +875,19 @@ function scoreSpot(spot: GourmetSpot, userText: string) {
     }
   }
 
+  const selectedArea = AREA_KEYS.find((area) => userText.includes(area));
+
+  if (selectedArea && selectedArea !== "エリア指定なし") {
+    const areaTerms = AREA_MATCH_MAP[selectedArea as AreaKey];
+    const isAreaMatch = areaTerms.some((term: string) => spot.area.includes(term));
+
+    if (isAreaMatch) {
+      score += 8;
+    } else {
+      score += 1;
+    }
+  }
+
   return score;
 }
 
@@ -1171,7 +1221,7 @@ async function handleEvent(event: webhook.Event) {
     return;
   }
 
-  if ((ROOT_MENU_KEYS as readonly string[]).includes(normalizedText)) {
+  if ((AREA_KEYS as readonly string[]).includes(normalizedText)) {
     await lineClient.replyMessage({
       replyToken: event.replyToken!,
       messages: [
